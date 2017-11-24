@@ -1,0 +1,7 @@
+# Gradle directory
+.gradle/
+build/
+app/build/
+.idea/
+/build/
+/anyRTCMeeting.apk
