@@ -87,7 +87,7 @@ Email:zhangjianqiang@dync.cc
 
 ### License
 
-- RTCPEngine is available under the MIT license. See the LICENSE file for more info.
+- RTCMeetingEngine is available under the MIT license. See the LICENSE file for more info.
 
 
 
