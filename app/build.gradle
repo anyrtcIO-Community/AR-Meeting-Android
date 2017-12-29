@@ -25,7 +25,7 @@ android {
 apply plugin: 'android-apt'
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile(name:'meet_kit-release',ext:'aar')
+    compile 'org.anyrtc:meet_kit:2.1'
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:recyclerview-v7:24.0.0'
     compile 'com.yanzhenjie:permission:1.1.0'
