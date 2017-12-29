@@ -16,6 +16,12 @@ anyRTC-Meeting-Android视频会议，基于RTMeetEngine SDK，支持视频、语
 ##### [点击下载](https://www.pgyer.com/anyRTC_Meeting)
 ##### [WEB在线体验](https://www.anyrtc.cc/demo/meeting)
 
+### SDK集成
+
+```
+compile 'org.anyrtc:meet_kit:2.1'
+```
+
 ### 安装
 
 ##### 编译环境
