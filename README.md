@@ -16,6 +16,51 @@ anyRTC-Meeting-Android视频会议，基于RTMeetEngine SDK，支持视频、语
 ##### [点击下载](https://www.pgyer.com/anyRTC_Meeting)
 ##### [WEB在线体验](https://www.anyrtc.cc/demo/meeting)
 
+### SDK集成
+# > 方式一（推荐）
+
+添加Jcenter仓库 Gradle依赖：
+
+```
+dependencies {
+  compile 'org.anyrtc:meet_kit:2.1'
+}
+```
+
+或者 Maven
+```
+<dependency>
+  <groupId>org.anyrtc</groupId>
+  <artifactId>meet_kit</artifactId>
+  <version>2.1</version>
+  <type>pom</type>
+</dependency>
+```
+
+>方式二
+
+ [下载aar SDK](https://www.anyrtc.io/resoure)
+
+>1. 将下载好的meet_kit-release-release.aar文件放入项目的libs目录中
+>2. 在Model下的build.gradle文件添加如下代码依赖MEETING SDK
+
+```
+android
+{
+
+ repositories {
+        flatDir {dirs 'libs'}
+    }
+    
+ }
+    
+```
+```
+dependencies {
+    compile(name: 'meet_kit-release', ext: 'aar')
+}
+```
+
 ### 安装
 
 ##### 编译环境
