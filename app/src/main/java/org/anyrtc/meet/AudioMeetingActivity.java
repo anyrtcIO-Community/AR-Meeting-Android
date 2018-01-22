@@ -275,48 +275,22 @@ public class AudioMeetingActivity extends BaseActivity {
                 }
             });
         }
-        /**
-         * 打开白板结果
-         * @param bSuccess true 成功 false 失败
-         */
-        @Override
-        public void onRTCSetWhiteBoardEnableResult(final boolean bSuccess) {
-            AudioMeetingActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d("callback", "onRTCSetWhiteBoardEnableResult bSuccess=" + bSuccess);
-                }
-            });
-        }
-        /**
-         * 会议中其他人打开了白板
-         * @param strWBInfo 白板信息
-         * @param strCustomID 用户ID
-         * @param strUserData 用户数据
-         */
-        @Override
-        public void onRTCWhiteBoardOpen(final String strWBInfo, final String strCustomID, final String strUserData) {
-            AudioMeetingActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d("callback", "onRTCWhiteBoardOpen strWBInfo=" + strWBInfo + "strCustomID:" + strCustomID + "strUserData:" + strUserData);
 
-
-                }
-            });
-        }
-        /**
-         * 会议中 其他人关闭了白板
-         */
         @Override
-        public void onRTCWhiteBoardClose() {
-            AudioMeetingActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d("callback", "onRTCWhiteBoardClose ");
-                }
-            });
+        public void onRTCSetUserShareEnableResult(boolean bSuccess) {
+
         }
+
+        @Override
+        public void onRTCUserShareOpen(int nType, String strWBInfo, String strCustomID, String strUserData) {
+
+        }
+
+        @Override
+        public void onRTCUserShareClose() {
+
+        }
+
     };
 
 

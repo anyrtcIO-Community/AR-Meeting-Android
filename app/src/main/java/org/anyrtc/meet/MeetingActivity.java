@@ -206,41 +206,40 @@ public class MeetingActivity extends BaseActivity {
                 }
             });
         }
-
         /**
          * 其他人视频即将显示  比如你在会议中有人进来了 则会回调该方法 再次设置其他人视频窗口即可
          * @param strRTCPeerId RTC服务生成的用来标识该用户的ID
          * @param strUserId 用户ID
+         * @param strPublishId 媒体通道ID
          * @param strUserData 用户自定义数据
          */
         @Override
-        public void onRTCOpenVideoRender(final String strRTCPeerId, final String strUserId, final String strUserData) {
+        public void onRTCOpenVideoRender(final String strRTCPeerId, final String strPublishId, final String strUserId, final String strUserData) {
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d("callback", "onRTCOpenVideoRender strRTCPeerId=" + strRTCPeerId + "strUserId=" + strUserId + "strUserData=" +strUserData);
-                    final VideoRenderer render = mVideoView.OnRtcOpenRemoteRender(strRTCPeerId);
+                    Log.d("callback", "onRTCOpenVideoRender strPublishId="+strPublishId+"strRTCPeerId=" + strRTCPeerId + "strUserId=" + strUserId + "strUserData=" +strUserData);
+                    final VideoRenderer render = mVideoView.OnRtcOpenRemoteRender(strPublishId);
                     if (null != render) {
-                        mMeetKit.setRTCVideoRender(strRTCPeerId, render.GetRenderPointer());
+                        mMeetKit.setRTCVideoRender(strPublishId, render.GetRenderPointer());
                     }
                 }
             });
         }
-
         /**
          * 其他人视频关闭  比如你在会议中有人离开了 则会回调该方法 将其他人视频窗口移除即可
          * @param strRTCPeerId RTC服务生成的用来标识该用户的ID
          * @param strUserId 用户ID
          */
         @Override
-        public void onRTCCloseVideoRender(final String strRTCPeerId,final String strUserId) {
+        public void onRTCCloseVideoRender(final String strRTCPeerId, final String strPublishId, final String strUserId) {
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Log.d("callback", "onRTCCloseVideoRender strRTCPeerId=" + strRTCPeerId + "strUserId=" + strUserId);
                     if (mMeetKit!=null&&mVideoView!=null) {
-                        mVideoView.OnRtcRemoveRemoteRender(strRTCPeerId);
-                        mMeetKit.setRTCVideoRender(strRTCPeerId, 0);
+                        mVideoView.OnRtcRemoveRemoteRender(strPublishId);
+                        mMeetKit.setRTCVideoRender(strPublishId, 0);
                     }
 
                 }
@@ -296,11 +295,12 @@ public class MeetingActivity extends BaseActivity {
         }
 
         /**
-         * 打开白板结果
-         * @param bSuccess true 成功 false 失败
+         * 设置用户分享信息结果
+         * @param bSuccess
          */
+
         @Override
-        public void onRTCSetWhiteBoardEnableResult(final boolean bSuccess) {
+        public void onRTCSetUserShareEnableResult(final boolean bSuccess) {
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -310,32 +310,23 @@ public class MeetingActivity extends BaseActivity {
         }
 
         /**
-         * 会议中其他人打开了白板
-         * @param strWBInfo 白板信息
-         * @param strCustomID 用户ID
-         * @param strUserData 用户数据
+         * 其他用户打开分享
+         * @param nType 自定义分享类型
+         * @param strWBInfo 自定义分享数据
+         * @param strCustomID 自定义用户ID
+         * @param strUserData 自定义用户信息
          */
         @Override
-        public void onRTCWhiteBoardOpen(final String strWBInfo, final String strCustomID, final String strUserData) {
-            MeetingActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d("callback", "onRTCWhiteBoardOpen strWBInfo=" + strWBInfo +"strCustomID:"+strCustomID+"strUserData:"+strUserData);
-                }
-            });
+        public void onRTCUserShareOpen(int nType, String strWBInfo, String strCustomID, String strUserData) {
+
         }
 
         /**
-         * 会议中 其他人关闭了白板
+         * 其他用户关闭分享
          */
         @Override
-        public void onRTCWhiteBoardClose() {
-            MeetingActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d("callback", "onRTCWhiteBoardClose ");
-                }
-            });
+        public void onRTCUserShareClose() {
+
         }
     };
 
