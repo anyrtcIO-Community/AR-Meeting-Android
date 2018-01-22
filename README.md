@@ -17,13 +17,13 @@ anyRTC-Meeting-Android视频会议，基于RTMeetEngine SDK，支持视频、语
 ##### [WEB在线体验](https://www.anyrtc.cc/demo/meeting)
 
 ### SDK集成
-# > 方式一（推荐）
+# > 方式一（推荐）[ ![Download](https://api.bintray.com/packages/dyncanyrtc/anyrtc_dev/anyRTC-Meeting-Android/images/download.svg) ](https://bintray.com/dyncanyrtc/anyrtc_dev/anyRTC-Meeting-Android/_latestVersion)
 
 添加Jcenter仓库 Gradle依赖：
 
 ```
 dependencies {
-  compile 'org.anyrtc:meet_kit:2.1'
+  compile 'org.anyrtc:meet_kit:2.3' //最新版见上面Download
 }
 ```
 
@@ -32,7 +32,7 @@ dependencies {
 <dependency>
   <groupId>org.anyrtc</groupId>
   <artifactId>meet_kit</artifactId>
-  <version>2.1</version>
+  <version>2.3</version>
   <type>pom</type>
 </dependency>
 ```
