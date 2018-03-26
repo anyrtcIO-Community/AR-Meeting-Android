@@ -76,6 +76,7 @@ public class AudioMeetingActivity extends BaseActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        rtMeetAudioKit.setSpeakerOn(true);
         //加入RTC服务（入会）
         rtMeetAudioKit.joinRTC(id, AnyRTCApplication.getUserId(), jsonObject.toString());
 
