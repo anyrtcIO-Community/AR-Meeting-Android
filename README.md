@@ -1,3 +1,12 @@
+
+### 更新日志
+
+2018-6-21
+
+1-更新最新版SDK
+2-统一分辨率
+
+
 ### anyRTC-Meeting-Android SDK for Android
 ### 简介
 anyRTC-Meeting-Android视频会议，基于RTMeetEngine SDK，支持视频、语音多人会议，适用于会议、培训、互动等多人移动会议。
@@ -23,7 +32,7 @@ anyRTC-Meeting-Android视频会议，基于RTMeetEngine SDK，支持视频、语
 
 ```
 dependencies {
-  compile 'org.anyrtc:meet_kit:2.4.3' //最新版见上面Download
+  compile 'org.anyrtc:meet_kit:2.4.7' //最新版见上面Download
 }
 ```
 

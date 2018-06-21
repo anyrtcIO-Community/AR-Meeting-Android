@@ -1,5 +1,6 @@
 package org.anyrtc.meet;
 
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 
 import org.anyrtc.AnyRTCApplication;
 import org.anyrtc.BaseActivity;
+import org.anyrtc.common.utils.AnyRTCAudioManager;
 import org.anyrtc.meet_kit.AnyRTCAudioMeetEvent;
 import org.anyrtc.meet_kit.RTMeetAudioKit;
 import org.anyrtc.meeting.R;
@@ -50,7 +52,7 @@ public class AudioMeetingActivity extends BaseActivity {
     @BindView(R.id.tv_status)
     TextView tvStatus;
     String id;
-
+    private AnyRTCAudioManager mRTCAudioManager;
     @Override
     public int getLayoutId() {
         return R.layout.activity_audio_meeting;
@@ -60,6 +62,18 @@ public class AudioMeetingActivity extends BaseActivity {
     public void initView(Bundle savedInstanceState) {
         tvName.setText(AnyRTCApplication.getNickName());
         mImmersionBar.titleBar(viewSpace).init();
+        mRTCAudioManager = AnyRTCAudioManager.create(this, new Runnable() {
+            // This method will be called each time the audio state (number
+            // and
+            // type of devices) has been changed.
+            @Override
+            public void run() {
+                onAudioManagerChangedState();
+            }
+        });
+        // Store existing audio settings and change audio mode to
+        // MODE_IN_COMMUNICATION for best possible VoIP performance.
+        mRTCAudioManager.init();
         rvPeople.setLayoutManager(new GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false));
         memberAdapter = new AudioMemberAdapter();
         rvPeople.setItemAnimator(null);
@@ -76,12 +90,16 @@ public class AudioMeetingActivity extends BaseActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        rtMeetAudioKit.setSpeakerOn(true);
         //加入RTC服务（入会）
         rtMeetAudioKit.joinRTC(id, AnyRTCApplication.getUserId(), jsonObject.toString());
 
     }
 
+    private void onAudioManagerChangedState() {
+        // TODO(henrika): disable video if
+        // AppRTCAudioManager.AudioDevice.EARPIECE is active.
+        setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+    }
     @OnClick({R.id.btn_close, R.id.ib_audio})
     public void onClick(View view) {
         switch (view.getId()) {
@@ -239,26 +257,35 @@ public class AudioMeetingActivity extends BaseActivity {
                 }
             });
         }
+
         /**
          * 声音检测  谁在说话可以在这判断
          * @param strRTCPeerId RTC服务生成的用来标识该用户的ID
          * @param nTime 360毫秒
          */
         @Override
-        public void onRTCAudioActive(final String strRTCPeerId, final int nTime) {
+        public void onRTCAudioActive(final String strRTCPeerId, String strUserId, final int nLevel, final int nTime) {
             AudioMeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Log.d("callback", "onRTCAudioActive strRTCPeerId=" + strRTCPeerId + "nTime=" + nTime);
-                    for (int i = 0; i < memberAdapter.getData().size(); i++) {
-                        if (strRTCPeerId.equals(memberAdapter.getData().get(i).peerId)) {
-                            memberAdapter.getItem(i).setVisiable(true);
-                            memberAdapter.notifyItemChanged(i);
+                    if (nLevel>10) {
+                        for (int i = 0; i < memberAdapter.getData().size(); i++) {
+                            if (strRTCPeerId.equals(memberAdapter.getData().get(i).peerId)) {
+                                memberAdapter.getItem(i).setVisiable(true);
+                                memberAdapter.notifyItemChanged(i);
+                            }
                         }
                     }
                 }
             });
         }
+
+        @Override
+        public void onRTCNetworkStatus(String strRTCPeerId, String strUserId, int nNetSpeed, int nPacketLost) {
+
+        }
+
         /**
          * 收到消息
          * @param strCustomID 用户ID
@@ -292,6 +319,26 @@ public class AudioMeetingActivity extends BaseActivity {
 
         }
 
+        @Override
+        public void onRTCHosterOnline(String strRTCPeerId, String strUserId, String strUserData) {
+
+        }
+
+        @Override
+        public void onRTCHosterOffline(String strRTCPeerId) {
+
+        }
+
+        @Override
+        public void onRTCTalkOnlyOn(String strRTCPeerId, String strUserId, String strUserData) {
+
+        }
+
+        @Override
+        public void onRTCTalkOnlyOff(String strRTCPeerId) {
+
+        }
+
     };
 
 
@@ -311,5 +358,9 @@ public class AudioMeetingActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mRTCAudioManager != null) {
+            mRTCAudioManager.close();
+            mRTCAudioManager = null;
+        }
     }
 }

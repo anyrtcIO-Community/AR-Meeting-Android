@@ -1,6 +1,7 @@
 package org.anyrtc.meet;
 
 import android.content.res.Configuration;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -12,7 +13,8 @@ import android.widget.TextView;
 import org.anyrtc.AnyRTCApplication;
 import org.anyrtc.BaseActivity;
 import org.anyrtc.common.enums.AnyRTCVideoLayout;
-import org.anyrtc.common.enums.AnyRTCVideoMode;
+import org.anyrtc.common.enums.AnyRTCVideoQualityMode;
+import org.anyrtc.common.utils.AnyRTCAudioManager;
 import org.anyrtc.meet_kit.AnyRTCMeetEngine;
 import org.anyrtc.meet_kit.AnyRTCMeetOption;
 import org.anyrtc.meet_kit.AnyRTCVideoMeetEvent;
@@ -47,6 +49,7 @@ public class MeetingActivity extends BaseActivity {
     private RTCVideoView mVideoView;
     boolean isOpenBoard=false;
     String id="";
+    private AnyRTCAudioManager mRTCAudioManager;
     @Override
     public int getLayoutId() {
         return R.layout.activity_meeting;
@@ -55,6 +58,18 @@ public class MeetingActivity extends BaseActivity {
     @Override
     public void initView(Bundle savedInstanceState) {
         mImmersionBar.titleBar(viewSpace).init();
+        mRTCAudioManager = AnyRTCAudioManager.create(this, new Runnable() {
+            // This method will be called each time the audio state (number
+            // and
+            // type of devices) has been changed.
+            @Override
+            public void run() {
+                onAudioManagerChangedState();
+            }
+        });
+        // Store existing audio settings and change audio mode to
+        // MODE_IN_COMMUNICATION for best possible VoIP performance.
+        mRTCAudioManager.init();
         Bundle bundle=getIntent().getExtras();
         id=bundle.getString("id");
         int mode=bundle.getInt("mode");
@@ -67,22 +82,21 @@ public class MeetingActivity extends BaseActivity {
                 //设置视频图像排列方式
                 anyRTCMeetOption.setVideoLayout(AnyRTCVideoLayout.AnyRTC_V_1X3);
                 //设置视频质量
-                anyRTCMeetOption.setVideoMode(AnyRTCVideoMode.AnyRTC_Video_Low);
+                anyRTCMeetOption.setVideoMode(AnyRTCVideoQualityMode.AnyRTCVideoQuality_Low2);
                 tvMeetMode.setText("四人会议室 - 360P");
                 break;
             case 720:
                 anyRTCMeetOption.setVideoLayout(AnyRTCVideoLayout.AnyRTC_V_1X3);
-                anyRTCMeetOption.setVideoMode(AnyRTCVideoMode.AnyRTC_Video_QHD);
+                anyRTCMeetOption.setVideoMode(AnyRTCVideoQualityMode.AnyRTCVideoQuality_Height1);
                 tvMeetMode.setText("四人会议室 - 720P");
                 break;
             case 1080:
                 anyRTCMeetOption.setVideoLayout(AnyRTCVideoLayout.AnyRTC_V_1X3);
-                anyRTCMeetOption.setVideoMode(AnyRTCVideoMode.AnyRTC_Video_HD);
+                anyRTCMeetOption.setVideoMode(AnyRTCVideoQualityMode.AnyRTCVideoQuality_Height2);
                 tvMeetMode.setText("四人会议室 - 1080P");
                 break;
-            case 9:
+            case 9://9人的不需要设置  默认
                 anyRTCMeetOption.setVideoLayout(AnyRTCVideoLayout.AnyRTC_V_3X3_auto);
-                anyRTCMeetOption.setVideoMode(AnyRTCVideoMode.AnyRTC_Video_SD);
                 tvMeetMode.setText("九人会议室");
                 break;
         }
@@ -99,23 +113,30 @@ public class MeetingActivity extends BaseActivity {
         //加入RTC服务
         mMeetKit.joinRTC(id, AnyRTCApplication.getUserId(), AnyRTCApplication.getNickName());
 
-        mVideoView.setBtnClickEvent(new RTCVideoView.ViewClickEvent() {
-            @Override
-            public void CloseVideoRender(View view, String strPeerId) {
-
-            }
-
-            @Override
-            public void OnSwitchCamera(View view) {
-
-            }
-
-            @Override
-            public void onVideoTouch(String strPeerId) {
-
-            }
-        });
+//        mVideoView.setBtnClickEvent(new RTCVideoView.ViewClickEvent() {
+//            @Override
+//            public void CloseVideoRender(View view, String strPeerId) {
+//
+//            }
+//
+//            @Override
+//            public void OnSwitchCamera(View view) {
+//
+//            }
+//
+//            @Override
+//            public void onVideoTouch(String strPeerId) {
+//
+//            }
+//        });
     }
+
+    private void onAudioManagerChangedState() {
+        // TODO(henrika): disable video if
+        // AppRTCAudioManager.AudioDevice.EARPIECE is active.
+        setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+    }
+
 
     @OnClick({R.id.btn_camare, R.id.ib_audio, R.id.ib_leave, R.id.ib_video})
     public void onClick(View view) {
@@ -268,7 +289,7 @@ public class MeetingActivity extends BaseActivity {
          * @param nTime 360毫秒
          */
         @Override
-        public void onRTCAudioActive(final String strRTCPeerId, final int nTime) {
+        public void onRTCAudioActive(final String strRTCPeerId, String strUserId, int nLevel, final int nTime) {
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -276,6 +297,13 @@ public class MeetingActivity extends BaseActivity {
                 }
             });
         }
+
+        @Override
+        public void onRTCNetworkStatus(String strRTCPeerId, String strUserId, int nNetSpeed, int nPacketLost) {
+
+        }
+
+
 
         /**
          * 收到消息
@@ -328,6 +356,26 @@ public class MeetingActivity extends BaseActivity {
         public void onRTCUserShareClose() {
 
         }
+
+        @Override
+        public void onRTCHosterOnline(String strRTCPeerId, String strUserId, String strUserData) {
+
+        }
+
+        @Override
+        public void onRTCHosterOffline(String strRTCPeerId) {
+
+        }
+
+        @Override
+        public void onRTCTalkOnlyOn(String strRTCPeerId, String strUserId, String strUserData) {
+
+        }
+
+        @Override
+        public void onRTCTalkOnlyOff(String strRTCPeerId) {
+
+        }
     };
 
 
@@ -349,6 +397,10 @@ public class MeetingActivity extends BaseActivity {
         super.onDestroy();
         if (mMeetKit != null) {
             mMeetKit.clear();
+        }
+        if (mRTCAudioManager != null) {
+            mRTCAudioManager.close();
+            mRTCAudioManager = null;
         }
     }
     @Override
