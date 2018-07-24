@@ -302,9 +302,6 @@ public class MeetingActivity extends BaseActivity {
         public void onRTCNetworkStatus(String strRTCPeerId, String strUserId, int nNetSpeed, int nPacketLost) {
 
         }
-
-
-
         /**
          * 收到消息
          * @param strCustomID 用户ID
@@ -374,6 +371,11 @@ public class MeetingActivity extends BaseActivity {
 
         @Override
         public void onRTCTalkOnlyOff(String strRTCPeerId) {
+
+        }
+
+        @Override
+        public void onRTCCheckConnectionRlt(boolean bOK) {
 
         }
     };

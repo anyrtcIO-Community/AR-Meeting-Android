@@ -339,6 +339,11 @@ public class AudioMeetingActivity extends BaseActivity {
 
         }
 
+        @Override
+        public void onRTCCheckConnectionRlt(boolean bOK) {
+
+        }
+
     };
 
 
