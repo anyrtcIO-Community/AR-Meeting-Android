@@ -25,7 +25,7 @@ android {
 apply plugin: 'android-apt'
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'org.anyrtc:meet_kit:2.5.2'
+    compile 'org.anyrtc:meet_kit:latest.integration'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.yanzhenjie:permission:1.1.0'
