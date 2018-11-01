@@ -61,7 +61,6 @@ public class AudioMeetingActivity extends BaseActivity {
     @Override
     public void initView(Bundle savedInstanceState) {
         tvName.setText(AnyRTCApplication.getNickName());
-        mImmersionBar.titleBar(viewSpace).init();
         mRTCAudioManager = AnyRTCAudioManager.create(this, new Runnable() {
             // This method will be called each time the audio state (number
             // and
@@ -84,17 +83,21 @@ public class AudioMeetingActivity extends BaseActivity {
         tvMeetMode.setText(mode == 1 ? "语音会议室 01" : "语音会议室 02");
         //实例化音频会议对象
         rtMeetAudioKit = new RTMeetAudioKit(AudioEvent);
+        //加入RTC服务（入会）
+        rtMeetAudioKit.joinRTC(id, AnyRTCApplication.getUserId(), getUserInfo());
+
+    }
+    public String getUserInfo() {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("nickName", AnyRTCApplication.getNickName());
+            jsonObject.put("userId", AnyRTCApplication.getUserId());
+            jsonObject.put("nickName", "android" + AnyRTCApplication.getUserId());
+            jsonObject.put("headUrl", "");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        //加入RTC服务（入会）
-        rtMeetAudioKit.joinRTC(id, AnyRTCApplication.getUserId(), jsonObject.toString());
-
+        return jsonObject.toString();
     }
-
     private void onAudioManagerChangedState() {
         // TODO(henrika): disable video if
         // AppRTCAudioManager.AudioDevice.EARPIECE is active.
@@ -194,6 +197,12 @@ public class AudioMeetingActivity extends BaseActivity {
                 }
             });
         }
+
+        @Override
+        public void onRTCUnPublish(String strRtcPeerId, String strReason) {
+
+        }
+
         /**
          * 其他人加入了
          * @param strRTCPeerId RTC服务生成的用来标识该用户的ID

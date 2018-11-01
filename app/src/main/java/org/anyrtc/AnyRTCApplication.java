@@ -2,9 +2,7 @@ package org.anyrtc;
 
 import android.app.Application;
 
-
 import org.anyrtc.meet_kit.AnyRTCMeetEngine;
-
 import org.anyrtc.utils.NameUtils;
 
 /**

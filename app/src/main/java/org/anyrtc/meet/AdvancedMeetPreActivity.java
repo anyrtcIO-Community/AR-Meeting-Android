@@ -30,7 +30,6 @@ public class AdvancedMeetPreActivity extends BaseActivity {
 
     @Override
     public void initView(Bundle savedInstanceState) {
-        mImmersionBar.titleBar(viewSpace).init();
         tvName.setText(AnyRTCApplication.getNickName());
 
     }

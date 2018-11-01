@@ -32,7 +32,6 @@ public class NormolMeetPreActivity extends BaseActivity {
 
     @Override
     public void initView(Bundle savedInstanceState) {
-        mImmersionBar.titleBar(viewSpace).init();
         tvName.setText(AnyRTCApplication.getNickName());
         bundle=new Bundle();
 
@@ -62,16 +61,19 @@ public class NormolMeetPreActivity extends BaseActivity {
             case R.id.rb_4_360:
                 bundle.putString("id","anymeeting10000");
                 bundle.putInt("mode",360);
+                bundle.putInt("MaxJoiner",4);
                 startAnimActivity(MeetingActivity.class,bundle);
                 break;
             case R.id.rb_4_720:
                 bundle.putString("id","anymeeting10001");
                 bundle.putInt("mode",720);
+                bundle.putInt("MaxJoiner",4);
                 startAnimActivity(MeetingActivity.class,bundle);
                 break;
             case R.id.rb_4_1080:
                 bundle.putString("id","anymeeting10002");
                 bundle.putInt("mode",1080);
+                bundle.putInt("MaxJoiner",4);
                 startAnimActivity(MeetingActivity.class,bundle);
                 break;
             case R.id.rb_9_0:

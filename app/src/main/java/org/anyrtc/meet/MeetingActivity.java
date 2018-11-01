@@ -1,8 +1,11 @@
 package org.anyrtc.meet;
 
+import android.animation.ObjectAnimator;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -20,7 +23,11 @@ import org.anyrtc.meet_kit.AnyRTCMeetOption;
 import org.anyrtc.meet_kit.AnyRTCVideoMeetEvent;
 import org.anyrtc.meet_kit.RTMeetKit;
 import org.anyrtc.meeting.R;
+import org.anyrtc.utils.ToastUtil;
 import org.anyrtc.weight.RTCVideoView;
+import org.anyrtc.weight.ScreenVideoView;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.webrtc.VideoRenderer;
 
 import butterknife.BindView;
@@ -45,11 +52,22 @@ public class MeetingActivity extends BaseActivity {
     ImageButton ibVideo;
     @BindView(R.id.tv_status)
     TextView tvStatus;
+    @BindView(R.id.rl_screen_share)
+    RelativeLayout rlScreenShare;
+    @BindView(R.id.rl_video_parent)
+    RelativeLayout rlVideoParent;
+    @BindView(R.id.ib_screen)
+    ImageButton ib_screen;
     private RTMeetKit mMeetKit;
     private RTCVideoView mVideoView;
-    boolean isOpenBoard=false;
-    String id="";
+    boolean isScreenShare = false;
+    boolean hadAddScreenVideo=false;
+    private String shareScreenInfo = "";
+
+    String roomId="";
+    private int   MaxJoiner;
     private AnyRTCAudioManager mRTCAudioManager;
+    ScreenVideoView screenVideoView;
     @Override
     public int getLayoutId() {
         return R.layout.activity_meeting;
@@ -57,7 +75,6 @@ public class MeetingActivity extends BaseActivity {
 
     @Override
     public void initView(Bundle savedInstanceState) {
-        mImmersionBar.titleBar(viewSpace).init();
         mRTCAudioManager = AnyRTCAudioManager.create(this, new Runnable() {
             // This method will be called each time the audio state (number
             // and
@@ -71,8 +88,9 @@ public class MeetingActivity extends BaseActivity {
         // MODE_IN_COMMUNICATION for best possible VoIP performance.
         mRTCAudioManager.init();
         Bundle bundle=getIntent().getExtras();
-        id=bundle.getString("id");
-        int mode=bundle.getInt("mode");
+        roomId = bundle.getString("id");
+        MaxJoiner=bundle.getInt("MaxJoiner");
+        int mode = bundle.getInt("mode");
         //获取配置类
         AnyRTCMeetOption anyRTCMeetOption= AnyRTCMeetEngine.Inst().getAnyRTCMeetOption();
         //设置默认为前置摄像头
@@ -111,26 +129,21 @@ public class MeetingActivity extends BaseActivity {
         //设置本地视频采集
         mMeetKit.setLocalVideoCapturer(render.GetRenderPointer());
         //加入RTC服务
-        mMeetKit.joinRTC(id, AnyRTCApplication.getUserId(), AnyRTCApplication.getNickName());
+        mMeetKit.joinRTC(roomId, AnyRTCApplication.getUserId(), getUserInfo());
 
-//        mVideoView.setBtnClickEvent(new RTCVideoView.ViewClickEvent() {
-//            @Override
-//            public void CloseVideoRender(View view, String strPeerId) {
-//
-//            }
-//
-//            @Override
-//            public void OnSwitchCamera(View view) {
-//
-//            }
-//
-//            @Override
-//            public void onVideoTouch(String strPeerId) {
-//
-//            }
-//        });
     }
-
+    public String getUserInfo() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("MaxJoiner",MaxJoiner);
+            jsonObject.put("userId", AnyRTCApplication.getUserId());
+            jsonObject.put("nickName", "android" + AnyRTCApplication.getUserId());
+            jsonObject.put("headUrl", "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
+    }
     private void onAudioManagerChangedState() {
         // TODO(henrika): disable video if
         // AppRTCAudioManager.AudioDevice.EARPIECE is active.
@@ -138,7 +151,7 @@ public class MeetingActivity extends BaseActivity {
     }
 
 
-    @OnClick({R.id.btn_camare, R.id.ib_audio, R.id.ib_leave, R.id.ib_video})
+    @OnClick({R.id.btn_camare, R.id.ib_audio, R.id.ib_leave, R.id.ib_video,R.id.ib_screen})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_camare:
@@ -172,6 +185,43 @@ public class MeetingActivity extends BaseActivity {
                     ibVideo.setSelected(true);
                     mMeetKit.setVideoEnable(false);//禁止本地视频传输
                 }
+            case R.id.ib_screen:
+                if (!ib_screen.isSelected()){
+                    ToastUtil.show("暂无人共享屏幕");
+                    return;
+                }
+                if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+                    rlScreenShare.removeAllViews();
+                    toggleVideoLayout();
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        }
+                    },400);
+
+                }else {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            toggleVideoLayout();
+                            if (!hadAddScreenVideo){//如果没打开过屏幕共享  则new一个视频渲染对像  添加到rlScreenShare中
+                                screenVideoView=new ScreenVideoView(AnyRTCMeetEngine.Inst().Egl(),MeetingActivity.this);
+                                VideoRenderer videoRenderer = screenVideoView.openVideoRender(shareScreenInfo);
+                                mMeetKit.setRTCVideoRender(shareScreenInfo,videoRenderer.GetRenderPointer());
+                                rlScreenShare.removeAllViews();
+                                rlScreenShare.addView(screenVideoView.getVideoRender().mLayout);
+                                hadAddScreenVideo=true;
+                            }else {
+                                rlScreenShare.addView(screenVideoView.getVideoRender().mLayout);
+                            }
+
+                        }
+                    },1000);
+
+                }
+
                 break;
         }
     }
@@ -190,7 +240,7 @@ public class MeetingActivity extends BaseActivity {
                 public void run() {
                     Log.d("MEETING", "onRTCJoinMeetOK strAnyRTCId=" + strAnyRTCId);
                     if (tvStatus!=null) {
-                        tvStatus.setText("加入会议室(" + id + ")成功");
+                        tvStatus.setText("加入会议室(" + roomId + ")成功");
                     }
                 }
             });
@@ -208,7 +258,7 @@ public class MeetingActivity extends BaseActivity {
                 public void run() {
                     Log.d("callback", "onRTCJoinMeetFailed strAnyRTCId=" + strAnyRTCId + "Code=" + nCode);
                     if (tvStatus!=null) {
-                        tvStatus.setText("加入会议室(" + id + ")失败，错误：" + nCode);
+                        tvStatus.setText("加入会议室(" + roomId + ")失败，错误：" + nCode);
                     }
                 }
             });
@@ -227,6 +277,12 @@ public class MeetingActivity extends BaseActivity {
                 }
             });
         }
+
+        @Override
+        public void onRTCUnPublish(String strRtcPeerId, String strReason) {
+
+        }
+
         /**
          * 其他人视频即将显示  比如你在会议中有人进来了 则会回调该方法 再次设置其他人视频窗口即可
          * @param strRTCPeerId RTC服务生成的用来标识该用户的ID
@@ -240,9 +296,11 @@ public class MeetingActivity extends BaseActivity {
                 @Override
                 public void run() {
                     Log.d("callback", "onRTCOpenVideoRender strPublishId="+strPublishId+"strRTCPeerId=" + strRTCPeerId + "strUserId=" + strUserId + "strUserData=" +strUserData);
-                    final VideoRenderer render = mVideoView.OnRtcOpenRemoteRender(strPublishId);
-                    if (null != render) {
-                        mMeetKit.setRTCVideoRender(strPublishId, render.GetRenderPointer());
+                    if (!strPublishId.equals(shareScreenInfo)) {
+                        final VideoRenderer render = mVideoView.OnRtcOpenRemoteRender(strUserId);
+                        if (null != render) {
+                            mMeetKit.setRTCVideoRender(strPublishId, render.GetRenderPointer());
+                        }
                     }
                 }
             });
@@ -258,8 +316,12 @@ public class MeetingActivity extends BaseActivity {
                 @Override
                 public void run() {
                     Log.d("callback", "onRTCCloseVideoRender strRTCPeerId=" + strRTCPeerId + "strUserId=" + strUserId);
+                    if (strPublishId.equals(shareScreenInfo)){
+                        shareScreenInfo="";
+                        return;
+                    }
                     if (mMeetKit!=null&&mVideoView!=null) {
-                        mVideoView.OnRtcRemoveRemoteRender(strPublishId);
+                        mVideoView.OnRtcRemoveRemoteRender(strUserId);
                         mMeetKit.setRTCVideoRender(strPublishId, 0);
                     }
 
@@ -342,8 +404,17 @@ public class MeetingActivity extends BaseActivity {
          * @param strUserData 自定义用户信息
          */
         @Override
-        public void onRTCUserShareOpen(int nType, String strWBInfo, String strCustomID, String strUserData) {
-
+        public void onRTCUserShareOpen(final int nType, final String strWBInfo, String strCustomID, String strUserData) {
+            MeetingActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (nType==0){//屏幕共享流
+                        isScreenShare = true;
+                        shareScreenInfo = strWBInfo;
+                        ib_screen.setSelected(true);
+                    }
+                }
+            });
         }
 
         /**
@@ -351,7 +422,25 @@ public class MeetingActivity extends BaseActivity {
          */
         @Override
         public void onRTCUserShareClose() {
+            MeetingActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    isScreenShare = false;
+                    ib_screen.setSelected(false);
+                    rlScreenShare.removeAllViews();
+                    if (MeetingActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+                        toggleVideoLayout();
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                            }
+                        },400);
 
+                    }
+                    hadAddScreenVideo=false;
+                }
+            });
         }
 
         @Override
@@ -419,6 +508,18 @@ public class MeetingActivity extends BaseActivity {
             }
         }
 
+    }
+
+    public void toggleVideoLayout() {
+        if (rlVideoParent.getTranslationX() == 0) {
+            ObjectAnimator animator = ObjectAnimator.ofFloat(rlVideoParent, "translationX", rlVideoParent.getTranslationX(), -rlVideoParent.getWidth());
+            animator.setDuration(400);
+            animator.start();
+        } else {
+            ObjectAnimator animator = ObjectAnimator.ofFloat(rlVideoParent, "translationX", rlVideoParent.getTranslationX(), 0);
+            animator.setDuration(400);
+            animator.start();
+        }
     }
 
 }

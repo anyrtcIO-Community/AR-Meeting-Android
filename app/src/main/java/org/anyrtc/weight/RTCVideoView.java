@@ -3,17 +3,19 @@ package org.anyrtc.weight;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import org.anyrtc.common.enums.AnyRTCVideoLayout;
 import org.anyrtc.common.utils.ScreenUtils;
 import org.anyrtc.meet_kit.AnyRTCMeetEngine;
+import org.anyrtc.meeting.R;
 import org.webrtc.EglBase;
+import org.webrtc.EglRenderer;
 import org.webrtc.PercentFrameLayout;
 import org.webrtc.RendererCommon;
 import org.webrtc.SurfaceViewRenderer;
@@ -22,6 +24,8 @@ import org.webrtc.VideoRenderer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import static android.view.View.VISIBLE;
 
 /**
  * Created by Eric on 2016/7/26.
@@ -43,7 +47,6 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
     private HashMap<String, Boolean> mAudioSetting = new HashMap<String, Boolean>();
     private HashMap<String, Boolean> mVideoSetting = new HashMap<String, Boolean>();
 
-    private ViewClickEvent mVideoClickEvent;
     private boolean isHost;
 
     public interface ViewClickEvent {
@@ -54,17 +57,9 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
         void onVideoTouch(String strPeerId);
     }
 
-    /**
-     * 设置按钮的点击事件
-     *
-     * @param viewClickEvent
-     */
-    public void setBtnClickEvent(ViewClickEvent viewClickEvent) {
-        this.mVideoClickEvent = viewClickEvent;
-    }
 
     protected static class VideoView {
-        public String strPeerId;
+        public String strUserId;
         public int index;
         public int x;
         public int y;
@@ -72,21 +67,16 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
         public int h;
         public PercentFrameLayout mLayout = null;
         public SurfaceViewRenderer mView = null;
+        private FrameLayout tvLoading;
         public VideoRenderer mRenderer = null;
-        public ImageView btnClose = null;
-        private RelativeLayout layoutCamera = null;
-        private AnyRTCVideoLayout mRTCVideoLayout;
 
-        private boolean mAudioShowFlag = false;
-        private boolean mVideoShowFlag = false;
-        public ImageView mAudioImageView;
-        public ImageView mVideoImageView;
-        public ImageView mLocalCamera;
+
+        private AnyRTCVideoLayout mRTCVideoLayout;
         private int width = mScreenWidth * SUB_WIDTH / (100 * 3);
         private int height = mScreenHeight * SUB_HEIGHT / (100 * 3);
 
-        public VideoView(String strPeerId, Context ctx, EglBase eglBase, int index, int x, int y, int w, int h, AnyRTCVideoLayout videoLayout) {
-            this.strPeerId = strPeerId;
+        public VideoView(String strUserId, Context ctx, EglBase eglBase, int index, int x, int y, int w, int h, AnyRTCVideoLayout videoLayout) {
+            this.strUserId = strUserId;
             this.index = index;
             this.x = x;
             this.y = y;
@@ -96,14 +86,10 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
 
             mLayout = new PercentFrameLayout(ctx);
             mLayout.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
-            View view = View.inflate(ctx, org.anyrtc.meet_kit.R.layout.layout_top_right, null);
-
-            mView = (SurfaceViewRenderer) view.findViewById(org.anyrtc.meet_kit.R.id.suface_view);
-            btnClose = (ImageView) view.findViewById(org.anyrtc.meet_kit.R.id.img_close_render);
-            mLocalCamera = (ImageView) view.findViewById(org.anyrtc.meet_kit.R.id.camera_off);
-            mAudioImageView = (ImageView) view.findViewById(org.anyrtc.meet_kit.R.id.img_audio_close);
-            mVideoImageView = (ImageView) view.findViewById(org.anyrtc.meet_kit.R.id.img_video_close);
-            layoutCamera = (RelativeLayout) view.findViewById(org.anyrtc.meet_kit.R.id.layout_camera);
+            //这里的view也可以自定义
+            View view = View.inflate(ctx, R.layout.layout_video, null);
+            tvLoading = (FrameLayout) view.findViewById(R.id.tv_loading);
+            mView = (SurfaceViewRenderer) view.findViewById(R.id.suface_view);
             mView.init(eglBase.getEglBaseContext(), null);
             mView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
             mLayout.addView(view);
@@ -133,23 +119,6 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
             mRenderer = null;
         }
 
-        private void updateView() {
-            if (mAudioShowFlag) {
-                if (mRTCVideoLayout == AnyRTCVideoLayout.AnyRTC_V_3X3_auto) {
-                    mAudioImageView.setVisibility(View.VISIBLE);
-                }
-            } else {
-                mAudioImageView.setVisibility(View.GONE);
-            }
-
-            if (mVideoShowFlag) {
-                if (mRTCVideoLayout == AnyRTCVideoLayout.AnyRTC_V_3X3_auto) {
-                    mVideoImageView.setVisibility(View.VISIBLE);
-                }
-            } else {
-                mVideoImageView.setVisibility(View.GONE);
-            }
-        }
     }
 
     private boolean mAutoLayout;
@@ -198,112 +167,27 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
         return size;
     }
 
-    /**
-     * 切换本地图像和远程图像
-     *
-     * @param peerid 远程图像的peerid
-     */
-    public void SwitchLocalViewToOtherView(String peerid) {
-        VideoView fullscrnView = mLocalRender;
-        VideoView view1 = mRemoteRenders.get(0);
-        int index, x, y, w, h;
-
-        index = view1.index;
-        x = view1.x;
-        y = view1.y;
-        w = view1.w;
-        h = view1.h;
-
-        view1.index = fullscrnView.index;
-        view1.x = fullscrnView.x;
-        view1.y = fullscrnView.y;
-        view1.w = fullscrnView.w;
-        view1.h = fullscrnView.h;
-
-        fullscrnView.index = index;
-        fullscrnView.x = x;
-        fullscrnView.y = y;
-        fullscrnView.w = w;
-        fullscrnView.h = h;
-
-        fullscrnView.mLayout.setPosition(fullscrnView.x, fullscrnView.y, fullscrnView.w, fullscrnView.h);
-        view1.mLayout.setPosition(view1.x, view1.y, view1.w, view1.h);
-        updateVideoLayout(view1, fullscrnView);
-    }
-
-    /**
-     * 交换两个图像的位置
-     *
-     * @param peerid1 图像1的peerid
-     * @param peerid2 图像2的peerid
-     */
-    public void SwitchViewByPeerId(String peerid1, String peerid2) {
-        VideoView view1 = mRemoteRenders.get(peerid1);
-        VideoView view2 = mRemoteRenders.get(peerid2);
-        int index, x, y, w, h;
-//        PercentFrameLayout layout;
-        index = view1.index;
-        x = view1.x;
-        y = view1.y;
-        w = view1.w;
-        h = view1.h;
-//        layout = view1.mLayout;
-
-        view1.index = view2.index;
-        view1.x = view2.x;
-        view1.y = view2.y;
-        view1.w = view2.w;
-        view1.h = view2.h;
-//        view1.mLayout = view2.mLayout;
-
-        view2.index = index;
-        view2.x = x;
-        view2.y = y;
-        view2.w = w;
-        view2.h = h;
-//        view2.mLayout = layout;
-
-        view2.mLayout.setPosition(view2.x, view2.y, view2.w, view2.h);
-        view1.mLayout.setPosition(view1.x, view1.y, view1.w, view1.h);
-        updateVideoLayout(view1, view2);
-    }
 
     private void SwitchViewToFullscreen(VideoView view1, VideoView fullscrnView) {
         int index, x, y, w, h;
-//        String peerid;
-//        ImageView mAudioImageView;
-//        ImageView mVideoImageView;
-//        ImageView mLocalCamera;
 
         index = view1.index;
         x = view1.x;
         y = view1.y;
         w = view1.w;
         h = view1.h;
-//        peerid = view1.strPeerId;
-//        mAudioImageView = view1.mAudioImageView;
-//        mVideoImageView = view1.mVideoImageView;
-//        mLocalCamera = view1.mLocalCamera;
 
         view1.index = fullscrnView.index;
         view1.x = fullscrnView.x;
         view1.y = fullscrnView.y;
         view1.w = fullscrnView.w;
         view1.h = fullscrnView.h;
-//        view1.strPeerId = fullscrnView.strPeerId;
-//        view1.mAudioImageView = fullscrnView.mAudioImageView;
-//        view1.mVideoImageView = fullscrnView.mVideoImageView;
-//        view1.mLocalCamera = fullscrnView.mLocalCamera;
 
         fullscrnView.index = index;
         fullscrnView.x = x;
         fullscrnView.y = y;
         fullscrnView.w = w;
         fullscrnView.h = h;
-//        fullscrnView.strPeerId = peerid;
-//        fullscrnView.mAudioImageView = mAudioImageView;
-//        fullscrnView.mVideoImageView = mVideoImageView;
-//        fullscrnView.mLocalCamera = mLocalCamera;
 
         fullscrnView.mLayout.setPosition(fullscrnView.x, fullscrnView.y, fullscrnView.w, fullscrnView.h);
         view1.mLayout.setPosition(view1.x, view1.y, view1.w, view1.h);
@@ -422,24 +306,23 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
     /**
      * 屏幕发生变化时变换图像的大小
      */
-    private void screenChange() {
-        if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            SUB_Y = 2;
-            SUB_WIDTH = 20;
-            SUB_HEIGHT = 24;
-        } else if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            SUB_Y = 2;
-            SUB_WIDTH = 24;
-            SUB_HEIGHT = 20;
-        }
-    }
+//    private void screenChange() {
+//        if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//            SUB_Y = 2;
+//            SUB_WIDTH = 20;
+//            SUB_HEIGHT = 24;
+//        } else if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+//            SUB_Y = 2;
+//            SUB_WIDTH = 24;
+//            SUB_HEIGHT = 20;
+//        }
+//    }
 
     /**
      * 根据模板更新视频界面的布局
      */
     private void updateVideoView() {
         if (mRTCVideoLayout == AnyRTCVideoLayout.AnyRTC_V_1X3) {
-            screenChange();
             int startPosition = (100 - SUB_WIDTH * mRemoteRenders.size()) / 2;
             int remotePosition;
             int index;
@@ -558,107 +441,6 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
         }
     }
 
-    /**
-     * 更新远端音频图像的状态
-     *
-     * @param peerId
-     * @param flag
-     */
-    private void updateRemoteAudioImage(String peerId, boolean flag) {
-        if (mRemoteRenders.containsKey(peerId)) {
-            VideoView videoView = mRemoteRenders.get(peerId);
-            videoView.mAudioShowFlag = !flag;
-            videoView.updateView();
-        }
-    }
-
-    /**
-     * 更新本地音频状态
-     *
-     * @param flag
-     */
-    public void updateLocalAudioImage(boolean flag) {
-        mLocalRender.mAudioShowFlag = flag;
-        mLocalRender.updateView();
-    }
-
-    /**
-     * 更新远端视频的状态
-     *
-     * @param peerId
-     * @param flag
-     */
-    private void updateRemoteVideoImage(String peerId, boolean flag) {
-        if (mRemoteRenders.containsKey(peerId)) {
-            VideoView videoView = mRemoteRenders.get(peerId);
-            videoView.mVideoShowFlag = !flag;
-            videoView.updateView();
-        }
-    }
-
-    /**
-     * 更新本地视频的状态
-     *
-     * @param flag
-     */
-    public void updateLocalVideoImage(boolean flag) {
-        mLocalRender.mVideoShowFlag = flag;
-        mLocalRender.updateView();
-    }
-
-    /**
-     * 关闭你摄像头
-     */
-    public void disableCamera() {
-        if (mRTCVideoLayout == AnyRTCVideoLayout.AnyRTC_V_1X3) {
-
-        } else {
-            mLocalRender.mLocalCamera.setBackgroundColor(Color.BLACK);
-        }
-    }
-
-    /**
-     * 打开摄像头
-     */
-    public void enableCamera() {
-        mLocalRender.mLocalCamera.setBackgroundColor(Color.TRANSPARENT);
-    }
-
-    /**
-     * 根据peerid记录每个视频的音视频状态
-     *
-     * @param peerId      每个视频图像的标识
-     * @param audioEnable 音频状态
-     * @param videoEnable 视频状态
-     */
-    public void OnRTCAVStatus(String peerId, boolean audioEnable, boolean videoEnable) {
-        mAudioSetting.put(peerId, audioEnable);
-        mVideoSetting.put(peerId, videoEnable);
-        updateRemoteAudioImage(peerId, audioEnable);
-        updateRemoteVideoImage(peerId, videoEnable);
-    }
-
-    /**
-     * 更新图像中视频和音频的标识
-     */
-    private void updateImageFlag() {
-        Iterator<Map.Entry<String, Boolean>> iterator = mVideoSetting.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, Boolean> entry = iterator.next();
-            String publishId = entry.getKey();
-            Boolean videoFlag = entry.getValue();
-            updateRemoteVideoImage(publishId, videoFlag);
-        }
-
-        iterator = mAudioSetting.entrySet().iterator();
-
-        while (iterator.hasNext()) {
-            Map.Entry<String, Boolean> entry = iterator.next();
-            String publishId = entry.getKey();
-            Boolean audioFlag = entry.getValue();
-            updateRemoteAudioImage(publishId, audioFlag);
-        }
-    }
 
     /**
      * 获取全屏的界面
@@ -705,7 +487,6 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
     @Override
     public VideoRenderer OnRtcOpenLocalRender() {
         int size = GetVideoRenderSize();
-        screenChange();
         if (size == 0) {
             if (mRTCVideoLayout == AnyRTCVideoLayout.AnyRTC_V_1X3) {
                 mLocalRender = new VideoView("localRender", mVideoView.getContext(), mRootEglBase, 0, 0, 0, 100, 100, mRTCVideoLayout);
@@ -725,6 +506,20 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
         mLocalRender.mLayout.setPosition(
                 mLocalRender.x, mLocalRender.y, mLocalRender.w, mLocalRender.h);
         mLocalRender.mView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
+        mLocalRender.tvLoading.setVisibility(VISIBLE);
+        mLocalRender.mView.addFrameListener(new EglRenderer.FrameListener() {
+            @Override
+            public void onFrame(Bitmap frame) {
+                Log.d("surfaceView", frame.toString());
+                mLocalRender.mView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLocalRender.tvLoading.setVisibility(View.GONE);
+                    }
+                });
+
+            }
+        }, 1f);
         mLocalRender.mRenderer = new VideoRenderer(mLocalRender.mView);
         return mLocalRender.mRenderer;
     }
@@ -740,47 +535,39 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
     }
 
     @Override
-    public VideoRenderer OnRtcOpenRemoteRender(final String strRtcPeerId) {
-        VideoView remoteRender = mRemoteRenders.get(strRtcPeerId);
+    public VideoRenderer OnRtcOpenRemoteRender(final String strUserId) {
+        VideoView remoteRender = mRemoteRenders.get(strUserId);
         if (remoteRender == null) {
             int size = GetVideoRenderSize();
             if (size == 0) {
-                remoteRender = new VideoView(strRtcPeerId, mVideoView.getContext(), mRootEglBase, 0, 0, 0, 100, 100, mRTCVideoLayout);
+                remoteRender = new VideoView(strUserId, mVideoView.getContext(), mRootEglBase, 0, 0, 0, 100, 100, mRTCVideoLayout);
             } else {
-                remoteRender = new VideoView(strRtcPeerId, mVideoView.getContext(), mRootEglBase, size, SUB_X, (100 - size * (SUB_HEIGHT + SUB_Y)), SUB_WIDTH, SUB_HEIGHT, mRTCVideoLayout);
+                remoteRender = new VideoView(strUserId, mVideoView.getContext(), mRootEglBase, size, SUB_X, (100 - size * (SUB_HEIGHT + SUB_Y)), SUB_WIDTH, SUB_HEIGHT, mRTCVideoLayout);
                 remoteRender.mView.setZOrderMediaOverlay(true);
             }
 
             mVideoView.addView(remoteRender.mLayout, 0);
-
             remoteRender.mLayout.setPosition(
                     remoteRender.x, remoteRender.y, remoteRender.w, remoteRender.h);
             remoteRender.mView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
+            remoteRender.tvLoading.setVisibility(VISIBLE);
+            final VideoView finalRemoteRender = remoteRender;
+            remoteRender.mView.addFrameListener(new EglRenderer.FrameListener() {
+                @Override
+                public void onFrame(Bitmap frame) {
+                    Log.d("surfaceView", frame.toString());
+                    finalRemoteRender.mView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            finalRemoteRender.tvLoading.setVisibility(View.GONE);
+                        }
+                    });
+
+                }
+            }, 1f);
             remoteRender.mRenderer = new VideoRenderer(remoteRender.mView);
-            mRemoteRenders.put(strRtcPeerId, remoteRender);
+            mRemoteRenders.put(strUserId, remoteRender);
             updateVideoView();
-            updateImageFlag();
-            if (strRtcPeerId.equals("localRender")) {
-                remoteRender.btnClose.setVisibility(View.VISIBLE);
-                remoteRender.layoutCamera.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (null != mVideoClickEvent) {
-                            mVideoClickEvent.OnSwitchCamera(v);
-                        }
-                    }
-                });
-                remoteRender.btnClose.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (null != mVideoClickEvent) {
-                            mVideoClickEvent.CloseVideoRender(v, strRtcPeerId);
-                        }
-                    }
-                });
-            } else {
-                remoteRender.btnClose.setVisibility(View.GONE);
-            }
             if (mRemoteRenders.size() == 1 && mLocalRender != null) {
                 if (mRTCVideoLayout == AnyRTCVideoLayout.AnyRTC_V_1X3) {
                     SwitchViewToFullscreen(remoteRender, mLocalRender);
@@ -831,7 +618,6 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
             int startX = (int) event.getX();
             int startY = (int) event.getY();
             if (mLocalRender.Hited(startX, startY)) {
-                mVideoClickEvent.onVideoTouch("localRender");
                 SwitchViewToFullscreen(mLocalRender, GetFullScreen());
                 return true;
             } else {
@@ -841,7 +627,6 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
                     String peerId = entry.getKey();
                     VideoView render = entry.getValue();
                     if (render.Hited(startX, startY)) {
-                        mVideoClickEvent.onVideoTouch(peerId);
                         SwitchViewToFullscreen(render, GetFullScreen());
                         return true;
                     }
@@ -849,5 +634,35 @@ public class RTCVideoView implements RTCViewHelper, View.OnTouchListener {
             }
         }
         return false;
+    }
+
+    //获取视频流渲染对象
+
+    public VideoView openScreenShare(final String strRtcPeerId) {
+        VideoView remoteRender = null;
+        if (remoteRender == null) {
+            remoteRender = new VideoView(strRtcPeerId, mVideoView.getContext(), mRootEglBase, 0, 0, 0, 100, 100, mRTCVideoLayout);
+            remoteRender.mLayout.setPosition(
+                    remoteRender.x, remoteRender.y, remoteRender.w, remoteRender.h);
+            remoteRender.mView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
+            remoteRender.tvLoading.setVisibility(VISIBLE);
+            final VideoView finalRemoteRender = remoteRender;
+            remoteRender.mView.addFrameListener(new EglRenderer.FrameListener() {
+                @Override
+                public void onFrame(Bitmap frame) {
+                    Log.d("surfaceView", frame.toString());
+                    finalRemoteRender.mView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            finalRemoteRender.tvLoading.setVisibility(View.GONE);
+                        }
+                    });
+
+                }
+            }, 1f);
+            remoteRender.mView.setZOrderMediaOverlay(true);
+            remoteRender.mRenderer = new VideoRenderer(remoteRender.mView);
+        }
+        return remoteRender;
     }
 }

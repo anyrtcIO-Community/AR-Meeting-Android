@@ -14,7 +14,6 @@ import butterknife.Unbinder;
  */
 public abstract class BaseActivity extends AppCompatActivity {
     private Unbinder unbindr;
-    protected ImmersionBar mImmersionBar;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -26,8 +25,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.setContentView(this.getLayoutId());
         unbindr = ButterKnife.bind(this);
-        mImmersionBar = ImmersionBar.with(this);
-        mImmersionBar.init();
         this.initView(savedInstanceState);
     }
 
@@ -36,8 +33,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unbindr.unbind();
-        if (mImmersionBar != null)
-            mImmersionBar.destroy();
     }
 
 
