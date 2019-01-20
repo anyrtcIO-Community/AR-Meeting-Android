@@ -32,7 +32,7 @@ anyRTC-Meeting-Android视频会议，基于RTMeetEngine SDK，支持视频、语
 
 ```
 dependencies {
-  compile 'org.anyrtc:meet_kit:2.4.7' //最新版见上面Download
+  compile 'org.anyrtc:meet_kit:2.6.1' //最新版见上面Download
 }
 ```
 
@@ -41,7 +41,7 @@ dependencies {
 <dependency>
   <groupId>org.anyrtc</groupId>
   <artifactId>meet_kit</artifactId>
-  <version>2.4.3</version>
+  <version>2.6.1</version>
   <type>pom</type>
 </dependency>
 ```
