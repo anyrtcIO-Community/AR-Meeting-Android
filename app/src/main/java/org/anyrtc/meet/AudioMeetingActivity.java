@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import org.anyrtc.AnyRTCApplication;
 import org.anyrtc.BaseActivity;
+import org.anyrtc.common.enums.AnyRTCNetQuality;
 import org.anyrtc.common.utils.AnyRTCAudioManager;
 import org.anyrtc.meet_kit.AnyRTCAudioMeetEvent;
 import org.anyrtc.meet_kit.RTMeetAudioKit;
@@ -151,6 +152,11 @@ public class AudioMeetingActivity extends BaseActivity {
 
     public AnyRTCAudioMeetEvent AudioEvent =new  AnyRTCAudioMeetEvent() {
 
+        @Override
+        public void OnRtcZoomPageInfo(int nZoomMode, int nAllPages, int nCurPage, int nAllRender, int nScrnBeginIdx, int nNum) {
+
+        }
+
         /**
          * 加入RTC服务成功（入会成功）
          * @param strAnyRTCId 会议ID
@@ -173,7 +179,7 @@ public class AudioMeetingActivity extends BaseActivity {
          * @param nCode 状态码
          */
         @Override
-        public void onRTCJoinMeetFailed(final String strAnyRTCId, final int nCode) {
+        public void onRTCJoinMeetFailed(final String strAnyRTCId, final int nCode, String strReason) {
             AudioMeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -184,6 +190,7 @@ public class AudioMeetingActivity extends BaseActivity {
                 }
             });
         }
+
         /**
          * 离开会议
          * @param nCode 状态码
@@ -199,9 +206,10 @@ public class AudioMeetingActivity extends BaseActivity {
         }
 
         @Override
-        public void onRTCUnPublish(String strRtcPeerId, String strReason) {
+        public void onRTCConnectionLost() {
 
         }
+
 
         /**
          * 其他人加入了
@@ -291,9 +299,10 @@ public class AudioMeetingActivity extends BaseActivity {
         }
 
         @Override
-        public void onRTCNetworkStatus(String strRTCPeerId, String strUserId, int nNetSpeed, int nPacketLost) {
+        public void onRTCNetworkStatus(String strRTCPeerId, String strUserId, int nNetSpeed, int nPacketLost, AnyRTCNetQuality netQuality) {
 
         }
+
 
         /**
          * 收到消息
@@ -348,10 +357,6 @@ public class AudioMeetingActivity extends BaseActivity {
 
         }
 
-        @Override
-        public void onRTCCheckConnectionRlt(boolean bOK) {
-
-        }
 
     };
 

@@ -3,6 +3,7 @@ package org.anyrtc;
 import android.app.Application;
 
 import org.anyrtc.meet_kit.AnyRTCMeetEngine;
+import org.anyrtc.utils.DeveloperInfo;
 import org.anyrtc.utils.NameUtils;
 
 /**
@@ -22,7 +23,7 @@ public class AnyRTCApplication extends Application {
         NickName= NameUtils.getNickName();
         //初始化会议引擎
         //配置开发者信息 可去anyrtc.io官网注册获取
-        AnyRTCMeetEngine.Inst().initEngineWithAnyrtcInfo(getApplicationContext(),"DeveloperID", "APPID", "APPKEY", "APPTOKEN");
+        AnyRTCMeetEngine.Inst().initEngineWithAnyrtcInfo(getApplicationContext(), DeveloperInfo.DEVELOPERID, DeveloperInfo.APPID, DeveloperInfo.APPKEY, DeveloperInfo.APPTOKEN);
         //配置私有云  没有可不填写
 //        AnyRTCMeetEngine.Inst().configServerForPriCloud("",0);
     }

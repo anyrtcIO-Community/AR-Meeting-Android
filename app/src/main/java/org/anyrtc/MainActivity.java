@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -18,7 +19,10 @@ import org.anyrtc.meeting.R;
 import org.anyrtc.utils.PermissionsCheckUtil;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.OnClick;
 
@@ -32,8 +36,40 @@ public class MainActivity extends BaseActivity {
         return R.layout.activity_main;
     }
 
+        public class Student{
+            int index;
+
+            public Student(int index) {
+                this.index = index;
+            }
+        }
     @Override
     public void initView(Bundle savedInstanceState) {
+        LinkedHashMap<String, Student> map = new LinkedHashMap<>();
+        map.put("zhangsan",  new Student(1));
+        map.put("lisi", new Student(2));
+        map.put("wangwu", new Student(3));
+        map.put("dsdd", new Student(4));
+        map.put("ds", new Student(5));
+
+
+        map.remove("dsdd");
+        List<Map.Entry<String, Student>> list = new ArrayList<Map.Entry<String, Student>>(map.entrySet());
+        for (int i=0;i<list.size();i++){
+            list.get(i).getValue().index=i+1;
+        }
+        for(Map.Entry<String, Student> t:list){
+           Log.d("=============",t.getKey()+":"+t.getValue().index);
+        }
+
+        map.put("dsdd", new Student(map.size()));
+        List<Map.Entry<String, Student>> list1 = new ArrayList<Map.Entry<String, Student>>(map.entrySet());
+        for (int i=0;i<list1.size();i++){
+            list1.get(i).getValue().index=i+1;
+        }
+        for(Map.Entry<String, Student> t:list1){
+            Log.d("=============",t.getKey()+":"+t.getValue().index);
+        }
     }
 
 

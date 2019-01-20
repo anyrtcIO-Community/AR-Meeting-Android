@@ -1,14 +1,20 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    compileSdkVersion 26
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "org.anyrtc.meeting"
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 2
         versionName "2.0.1"
+    }
+    android{
+        compileOptions{
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
     }
     buildTypes {
         release {
@@ -22,17 +28,15 @@ android {
         }
     }
 }
-apply plugin: 'android-apt'
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'org.anyrtc:meet_kit:latest.integration'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:recyclerview-v7:25.3.1'
-    compile 'com.yanzhenjie:permission:1.1.0'
-    compile 'com.gyf.barlibrary:barlibrary:2.3.0'
-    compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.22'
-    compile 'com.jakewharton:butterknife:8.4.0'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'org.anyrtc:meet_kit:2.6.1'
+    implementation 'com.android.support:appcompat-v7:26+'
+    implementation 'com.android.support:recyclerview-v7:26+'
+    implementation 'com.yanzhenjie:permission:1.1.0'
+    implementation 'com.gyf.barlibrary:barlibrary:2.3.0'
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.22'
+    implementation 'com.jakewharton:butterknife:8.4.0'
 
-    testCompile 'junit:junit:4.12'
-    apt 'com.jakewharton:butterknife-compiler:8.4.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
 }

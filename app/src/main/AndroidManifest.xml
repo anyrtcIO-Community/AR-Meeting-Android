@@ -29,6 +29,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name="org.anyrtc.meet.MeetingActivity"
+            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name="org.anyrtc.meet.AudioMeetingActivity"
