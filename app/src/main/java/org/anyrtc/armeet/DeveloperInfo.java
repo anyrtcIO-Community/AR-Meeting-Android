@@ -9,21 +9,21 @@ public class DeveloperInfo {
      * anyRTC 平台的开发者ID
      */
 
-    public final static String DEVELOPERID = "95878050";
+    public final static String DEVELOPERID = "";
 
     /**
      * anyRTC 平台的appid
      */
-    public final static String APPID = "anyrtcXJfqnOdWy8Di";
+    public final static String APPID = "";
 
     /**
      * anyRTC 平台的appkey
      */
-    public final static String APPKEY = "r5vqr4v7gMmUhcHxCYOTY1A/gvJdYjyH0yLJKkwiAz8";
+    public final static String APPKEY = "";
 
     /**
      * anyRTC 平台的apptoken
      */
-    public final static String APPTOKEN = "007ac828e3ca883f6bab728018eec068";
+    public final static String APPTOKEN = "";
 
 }
