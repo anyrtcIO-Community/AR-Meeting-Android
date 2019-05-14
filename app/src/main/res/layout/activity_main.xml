@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/img_bg"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="10dp"
+            android:layout_centerInParent="true"
+            android:drawableTop="@drawable/img_logo"
+            android:text="anyRTC多人音视频DEMO"
+            android:textColor="#CCCCCC"
+            android:textSize="12sp" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:paddingTop="30dp">
+
+            <EditText
+                android:id="@+id/et_meet_id"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/shape_input_id"
+                android:gravity="center"
+                android:hint="请输入房间号"
+                android:inputType="number"
+                android:maxLength="8"
+                android:singleLine="true"
+                android:textColor="#999999"
+                android:textColorHint="#999999"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/tv_join"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="12sp"
+                android:gravity="center"
+                android:background="@drawable/shape_join"
+                android:text="加入房间"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_support"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="12dp"
+            android:text="技术支持：hi@dync.cc"
+            android:textColor="#CCCCCC"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/tv_support"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="6sp"
+            android:textColor="#CCCCCC"
+            android:textSize="12sp" />
+
+    </RelativeLayout>
+
+</LinearLayout>
