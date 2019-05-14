@@ -1,73 +1,35 @@
 
-### 更新日志
-
-2018-6-21
-
-1-更新最新版SDK
-2-统一分辨率
-
-
-### anyRTC-Meeting-Android SDK for Android
+### AR-Meeting-Android SDK for Android
 ### 简介
-anyRTC-Meeting-Android视频会议，基于RTMeetEngine SDK，支持视频、语音多人会议，适用于会议、培训、互动等多人移动会议。
-
-### 项目展示
-![image](https://github.com/AnyRTC/anyRTC-Meeting-Android/blob/master/images/meet1.jpg)
-![image](https://github.com/AnyRTC/anyRTC-Meeting-Android/blob/master/images/meet2.jpg)
-![image](https://github.com/AnyRTC/anyRTC-Meeting-Android/blob/master/images/meet3.jpg)
-![image](https://github.com/AnyRTC/anyRTC-Meeting-Android/blob/master/images/meet4.jpg)
+AR-Meeting-Android视频会议，基于ARMeetEngine SDK，支持视频、语音多人会议，适用于会议、培训、互动等多人移动会议。
 
 
 ### app体验
 
 ##### 扫码下载
-![image](https://github.com/AnyRTC/anyRTC-Meeting-Android/blob/master/images/demo_qrcode.png)
-##### [点击下载](https://www.pgyer.com/anyRTC_Meeting)
-##### [WEB在线体验](https://www.anyrtc.cc/demo/meeting)
+![image](https://www.pgyer.com/app/qrcode/eU0U)
+##### [点击下载](https://www.pgyer.com/eU0U)
+##### [WEB在线体验](https://beyond.anyrtc.cc/demo/meeting)
 
 ### SDK集成
-# > 方式一（推荐）[ ![Download](https://api.bintray.com/packages/dyncanyrtc/anyrtc_dev/anyRTC-Meeting-Android/images/download.svg) ](https://bintray.com/dyncanyrtc/anyrtc_dev/anyRTC-Meeting-Android/_latestVersion)
+# > 方式一（推荐）[ ![Download](https://api.bintray.com/packages/dyncanyrtc/ar_dev/meet/images/download.svg) ](https://bintray.com/dyncanyrtc/ar_dev/meet/_latestVersion)
 
 添加Jcenter仓库 Gradle依赖：
 
 ```
 dependencies {
-  compile 'org.anyrtc:meet_kit:2.6.1' //最新版见上面Download
+compile 'org.ar:meet_kit:3.0.0'
 }
 ```
 
 或者 Maven
 ```
 <dependency>
-  <groupId>org.anyrtc</groupId>
+  <groupId>org.ar</groupId>
   <artifactId>meet_kit</artifactId>
-  <version>2.6.1</version>
+  <version>3.0.0</version>
   <type>pom</type>
 </dependency>
-```
-
->方式二
-
- [下载aar SDK](https://www.anyrtc.io/resoure)
-
->1. 将下载好的meet_kit-release-release.aar文件放入项目的libs目录中
->2. 在Model下的build.gradle文件添加如下代码依赖MEETING SDK
-
-```
-android
-{
-
- repositories {
-        flatDir {dirs 'libs'}
-    }
-    
- }
-    
-```
-```
-dependencies {
-    compile(name: 'meet_kit-release', ext: 'aar')
-}
 ```
 
 ### 安装
@@ -89,7 +51,7 @@ Android API 15+
 
 ##### 替换开发者账号
 在[anyRTC官网](http://www.anyrtc.io)获取了开发者账号，AppID等信息后，替换DEMO中
-**AnyRTCApplication**类中的开发者信息即可
+**DeveloperInfo**类中的开发者信息即可
 
 ### 操作步骤
 
@@ -98,15 +60,15 @@ Android API 15+
 2、另一台手机进入相同会议房间，实时会议开始。
 
 ### 完整文档
-SDK集成，API介绍，详见官方完整文档：[点击查看](https://www.anyrtc.io/resoure)
+SDK集成，API介绍，详见官方完整文档：[点击查看](https://docs.anyrtc.io/v1/MEET/android.html)
 
-### Ios版anyRTC-Meeting视频会议
+### iOS版 视频会议
 
-[anyRTC-Meeting-Ios](https://github.com/AnyRTC/anyRTC-Meeting-iOS)
+[AR-Meeting-Ios](https://github.com/AnyRTC/anyRTC-Meeting-iOS)
 
 ### Web版anyRTC-Meeting视频会议在线体验
 
-[anyRTC-Meeting-Web](https://www.anyrtc.cc/demo/meeting)
+[AR-Meeting-Web](https://beyond.anyrtc.cc/demo/meeting)
 
 
 ### 支持的系统平台
@@ -118,7 +80,7 @@ SDK集成，API介绍，详见官方完整文档：[点击查看](https://www.an
 
 ### 注意事项
 1. Meeting SDK所有回调均在子线程中，所以在回调中操作UI等，应切换主线程。
-2. 发布直播订阅直播注意安卓6.0+动态权限处理。
+2. 注意安卓6.0+动态权限处理。
 3. 常见错误代码请参考[错误码查询](https://www.anyrtc.io/resoure)
 
 ### 技术支持
