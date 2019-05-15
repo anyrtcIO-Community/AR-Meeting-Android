@@ -13,6 +13,6 @@ public class ARApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        ARMeetEngine.Inst().initEngineWithARInfo(getApplicationContext(),DeveloperInfo.DEVELOPERID, DeveloperInfo.APPID,DeveloperInfo.APPKEY,DeveloperInfo.APPTOKEN);
+        ARMeetEngine.Inst().initEngine(getApplicationContext(), DeveloperInfo.APPID,DeveloperInfo.APPTOKEN);
     }
 }
