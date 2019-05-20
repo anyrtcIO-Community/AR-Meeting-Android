@@ -27,10 +27,10 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:28.0.0'
-        compile(name: 'meet_kit-release', ext: 'aar')
     compile 'com.android.support:recyclerview-v7:28.0.0'
     compile 'com.yanzhenjie.permission:support:2.0.1'
     compile 'com.gyf.barlibrary:barlibrary:2.3.0'
     compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.22'
     compile 'com.android.support.constraint:constraint-layout:1.1.3'
+    compile project(':meet_kit')
 }

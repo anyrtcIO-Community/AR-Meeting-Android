@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-version = "2.6.4"
+version = "3.0.1"
 apply plugin: 'maven'
 android {
     compileSdkVersion 26
@@ -10,8 +10,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 24
-        versionName "2.6.4"
+        versionCode 25
+        versionName "3.0.1"
     }
     buildTypes {
         release {
@@ -96,8 +96,8 @@ bintray {
     key = properties.getProperty("bintray.apikey")   //读取 local.properties 文件里面的 bintray.apikey
     configurations = ['archives']
     pkg {
-        repo = "anyrtc_dev"
-        name = "anyRTC-Meeting-Android"    //发布到JCenter上的项目名字，必须填写
+        repo = "ar_dev"
+        name = "meet"    //发布到JCenter上的项目名字，必须填写
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]
@@ -121,6 +121,6 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:26+'
 //    embedded project(path: ':anyrtc_common')
-    embedded project(':ar_common')
-//    compile 'org.ar:ar_common:3.0.1'
+//    compile project(':ar_common')
+    compile 'org.ar:ar_common:3.0.1'
 }
