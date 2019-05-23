@@ -171,9 +171,9 @@ public class ARVideoView implements View.OnTouchListener{
         public Boolean Hited(int px, int py) {
             if (!isFullScreen()) {
                 int left = x * mScreenWidth / 100;
-                int top = y * mScreenHeight / 100;
                 int right = (x + w) * mScreenWidth / 100;
-                int bottom = (y + h) * mScreenHeight / 100;
+                int top =( y+h) * (mScreenHeight / 100);
+                int bottom = (y+h+w) * (mScreenHeight/100);
                 if ((px >= left && px <= right) && (py >= top && py <= bottom)) {
                     return true;
                 }
@@ -691,30 +691,62 @@ public class ARVideoView implements View.OnTouchListener{
         if (view1==null||fullscrnView==null){
             return;
         }
-        int index, x, y, w, h;
+        if (view1.videoId.equals("ScreenShare")){
+            int index, x, y, w, h;
 
-        index = view1.index;
-        x = view1.x;
-        y = view1.y;
-        w = view1.w;
-        h = view1.h;
+            index = view1.index;
+            x = view1.x;
+            y = view1.y;
+            w = view1.w;
+            h = view1.h;
 
-        view1.index = fullscrnView.index;
-        view1.x = fullscrnView.x;
-        view1.y = fullscrnView.y;
-        view1.w = fullscrnView.w;
-        view1.h = fullscrnView.h;
+            view1.index = fullscrnView.index;
+            view1.w = 100;
+            view1.h = 27;
+            view1.x = 0;
+            view1.y = (int)(100-view1.h)/2;
 
-        fullscrnView.index = index;
-        fullscrnView.x = x;
-        fullscrnView.y = y;
-        fullscrnView.w = w;
-        fullscrnView.h = h;
 
-        fullscrnView.mLayout.setPosition(fullscrnView.x, fullscrnView.y, fullscrnView.w, fullscrnView.h);
-        view1.mLayout.setPosition(view1.x, view1.y, view1.w, view1.h);
+            fullscrnView.index = index;
+            fullscrnView.x = x;
+            fullscrnView.y = y;
+            fullscrnView.w = w;
+            fullscrnView.h = h;
 
-        updateVideoLayout(view1, fullscrnView);
+            fullscrnView.mLayout.setPosition(fullscrnView.x, fullscrnView.y, fullscrnView.w, fullscrnView.h);
+            view1.mLayout.setPosition(view1.x, view1.y, view1.w, view1.h);
+
+            updateVideoLayout(view1, fullscrnView);
+        }else {
+            int index, x, y, w, h;
+
+            index = view1.index;
+            x = view1.x;
+            y = view1.y;
+            w = view1.w;
+            h = view1.h;
+
+//            view1.index = fullscrnView.index;
+//            view1.x = fullscrnView.x;
+//            view1.y = fullscrnView.y;
+//            view1.w = fullscrnView.w;
+//            view1.h = fullscrnView.h;
+            view1.index = fullscrnView.index;
+            view1.x = 0;
+            view1.y = 0;
+            view1.w = 100;
+            view1.h = 100;
+            fullscrnView.index = index;
+            fullscrnView.x = x;
+            fullscrnView.y = y;
+            fullscrnView.w = w;
+            fullscrnView.h = h;
+
+            fullscrnView.mLayout.setPosition(fullscrnView.x, fullscrnView.y, fullscrnView.w, fullscrnView.h);
+            view1.mLayout.setPosition(view1.x, view1.y, view1.w, view1.h);
+
+            updateVideoLayout(view1, fullscrnView);
+        }
     }
     /**
      * 视频切换后更新视频的布局
