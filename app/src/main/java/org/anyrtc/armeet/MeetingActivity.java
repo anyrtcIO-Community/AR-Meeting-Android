@@ -218,7 +218,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 @Override
                 public void run() {
                     logAdapter.addData("回调：onRTCOpenScreenRender 屏幕共享流接入即将渲染显示 publishId："+publishId+"\n peerId:"+peerId+"user:"+userId);
-                    final VideoRenderer render = mVideoView.openRemoteVideoRender(publishId);
+                    final VideoRenderer render = mVideoView.openRemoteVideoRender("ScreenShare");
                     if (null != render) {
                         mMeetKit.setRemoteVideoRender(publishId, render.GetRenderPointer());
                     }
@@ -233,7 +233,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 public void run() {
                     logAdapter.addData("回调：onRTCCloseScreenRender 屏幕共享流关闭 publishId："+publishId+"\n peerId:"+peerId+"user:"+userId);
                     if (mMeetKit!=null&&mVideoView!=null) {
-                        mVideoView.removeRemoteRender(publishId);
+                        mVideoView.removeRemoteRender("ScreenShare");
                         mMeetKit.setRemoteVideoRender(publishId, 0);
                     }
                 }

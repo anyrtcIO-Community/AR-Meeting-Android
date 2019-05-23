@@ -3,6 +3,7 @@ package org.anyrtc.armeet;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
@@ -36,7 +37,7 @@ import static android.view.View.VISIBLE;
 /**
  * Created by liuxiaozhong on 2019/1/11.
  */
-public class ARVideoView implements View.OnTouchListener{
+public class ARVideoView implements View.OnTouchListener {
 
     public RelativeLayout rlVideoGroup;//所有视频的容器布局
 
@@ -46,13 +47,15 @@ public class ARVideoView implements View.OnTouchListener{
 
     private VideoView LocalVideoRender;//本地视频显示对象
 
+    private VideoView ScreenShareRender;//屏幕共享显示对象
+
     private LinkedHashMap<String, VideoView> mRemoteRenderList;//远程视频集合
 
     private static int mScreenWidth;//屏幕宽
 
     private static int mScreenHeight;//屏幕高
 
-    private boolean isSameSize=false;//是否是平均大小模式
+    private boolean isSameSize = false;//是否是平均大小模式
     private boolean is169 = false;//比例是否是16：9
     private int direction = Gravity.CENTER;//1大几小的时候  小像位置
     private int orientation = LinearLayout.HORIZONTAL;//1大几小的时候  小像横向或纵向排列
@@ -65,7 +68,7 @@ public class ARVideoView implements View.OnTouchListener{
         this.rlVideoGroup = rlVideoGroup;
         this.eglBase = eglBase;
         this.mContext = context;
-        this.isSameSize=isSameSize;
+        this.isSameSize = isSameSize;
 
         mRemoteRenderList = new LinkedHashMap<>();
         mScreenWidth = ScreenUtils.getScreenWidth(mContext);
@@ -171,15 +174,21 @@ public class ARVideoView implements View.OnTouchListener{
         public Boolean Hited(int px, int py) {
             if (!isFullScreen()) {
                 int left = x * mScreenWidth / 100;
-                int top = y * mScreenHeight / 100;
                 int right = (x + w) * mScreenWidth / 100;
-                int bottom = (y + h) * mScreenHeight / 100;
+                int top =( y+h) * (mScreenHeight / 100);
+                int bottom = (y+h+w) * (mScreenHeight/100);
                 if ((px >= left && px <= right) && (py >= top && py <= bottom)) {
                     return true;
                 }
             }
             return false;
         }
+//        public  boolean Hited(int px, int py) {
+//            Rect frame = new Rect();
+//            surfaceViewRenderer.getHitRect(frame);
+//            return frame.contains(px,py);
+//
+//        }
 
         public void close() {
             mLayout.removeView(surfaceViewRenderer);
@@ -194,8 +203,9 @@ public class ARVideoView implements View.OnTouchListener{
     /**
      * 仅用于1大几小
      * 1个大像和几个小像的时候设置
-     * @param is169  比例是否是16：9  true 16:9  false 4:3
-     * @param direction 显示位置 左边 中间  右边
+     *
+     * @param is169       比例是否是16：9  true 16:9  false 4:3
+     * @param direction   显示位置 左边 中间  右边
      * @param orientation 排列方式 垂直 横向
      */
     public void setVideoViewLayout(boolean is169, int direction, int orientation) {
@@ -216,7 +226,7 @@ public class ARVideoView implements View.OnTouchListener{
         if (is169) {
             if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {//横屏
                 SUB_WIDTH = (int) (((mScreenWidth / 5f) * 1.777777f) / (mScreenHeight / 100f));
-                SUB_HEIGHT=(int) ((mScreenWidth / 5f) / (mScreenWidth / 100f));
+                SUB_HEIGHT = (int) ((mScreenWidth / 5f) / (mScreenWidth / 100f));
             } else {
                 SUB_HEIGHT = (int) (((mScreenWidth / 5f) * 1.777777f) / (mScreenHeight / 100f));
                 SUB_WIDTH = (int) ((mScreenWidth / 5f) / (mScreenWidth / 100f));
@@ -224,19 +234,17 @@ public class ARVideoView implements View.OnTouchListener{
         } else {
             if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {//横屏
                 SUB_WIDTH = (int) (((mScreenWidth / 5f) * 1.33333f) / (mScreenHeight / 100f));
-                SUB_HEIGHT=(int) ((mScreenWidth / 5f) / (mScreenWidth / 100f));
+                SUB_HEIGHT = (int) ((mScreenWidth / 5f) / (mScreenWidth / 100f));
             } else {
                 SUB_HEIGHT = (int) (((mScreenWidth / 5f) * 1.33333f) / (mScreenHeight / 100f));
                 SUB_WIDTH = (int) ((mScreenWidth / 5f) / (mScreenWidth / 100f));
             }
         }
-        if (!isFirst){
+        if (!isFirst) {
             updateVideoView1Big();
         }
 
     }
-
-
 
 
     /**
@@ -285,9 +293,9 @@ public class ARVideoView implements View.OnTouchListener{
 
             }
         }, 1f);
-        if (isSameSize){
+        if (isSameSize) {
             updateVideoViewSameSize();
-        }else {
+        } else {
             updateVideoView1Big();
         }
         LocalVideoRender.videoRenderer = new VideoRenderer(LocalVideoRender.surfaceViewRenderer);
@@ -303,9 +311,9 @@ public class ARVideoView implements View.OnTouchListener{
             LocalVideoRender.videoRenderer = null;
             rlVideoGroup.removeView(LocalVideoRender.mLayout);
             LocalVideoRender = null;
-            if (isSameSize){
+            if (isSameSize) {
                 updateVideoViewSameSize();
-            }else {
+            } else {
                 updateVideoView1Big();
             }
         }
@@ -325,7 +333,7 @@ public class ARVideoView implements View.OnTouchListener{
         remoteVideoRender.surfaceViewRenderer.addFrameListener(new EglRenderer.FrameListener() {
             @Override
             public void onFrame(Bitmap bitmap) {
-                Log.d("surfaceView",  getStringDate() + "  " + bitmap.toString());
+                Log.d("surfaceView", getStringDate() + "  " + bitmap.toString());
                 saveBitmap(bitmap, videoId);
             }
         }, 1f);
@@ -333,9 +341,10 @@ public class ARVideoView implements View.OnTouchListener{
 
     /**
      * 获取当前时间戳
+     *
      * @return yyyy-MM-dd HH:mm:ss
      */
-    public  String getStringDate() {
+    public String getStringDate() {
         Date currentTime = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = formatter.format(currentTime);
@@ -359,7 +368,7 @@ public class ARVideoView implements View.OnTouchListener{
             return;
         }
         try {
-            filePic = new File( savePath + name + "_"+ getStringDate() + ".jpg");
+            filePic = new File(savePath + name + "_" + getStringDate() + ".jpg");
             if (!filePic.exists()) {
                 filePic.getParentFile().mkdirs();
                 filePic.createNewFile();
@@ -411,9 +420,9 @@ public class ARVideoView implements View.OnTouchListener{
             }, 1f);
             remoteVideoRender.videoRenderer = new VideoRenderer(remoteVideoRender.surfaceViewRenderer);
             mRemoteRenderList.put(videoId, remoteVideoRender);
-            if (isSameSize){
+            if (isSameSize) {
                 updateVideoViewSameSize();
-            }else {
+            } else {
                 updateVideoView1Big();
             }
         }
@@ -432,13 +441,14 @@ public class ARVideoView implements View.OnTouchListener{
             rlVideoGroup.removeView(remoteVideoRender.mLayout);
             mRemoteRenderList.remove(videoId);
             sortVideoRenderIndex();
-            if (isSameSize){
+            if (isSameSize) {
                 updateVideoViewSameSize();
-            }else {
+            } else {
                 updateVideoView1Big();
             }
         }
     }
+
 
     public void sortVideoRenderIndex() {
         List<Map.Entry<String, VideoView>> list = new ArrayList<Map.Entry<String, VideoView>>(mRemoteRenderList.entrySet());
@@ -464,12 +474,13 @@ public class ARVideoView implements View.OnTouchListener{
                 LocalVideoRender.w = 100;
                 LocalVideoRender.h = 100;
                 LocalVideoRender.mLayout.setPosition(0, 0, 100, 100);
+                LocalVideoRender.surfaceViewRenderer.setZOrderMediaOverlay(false);
                 LocalVideoRender.surfaceViewRenderer.requestLayout();
             }
         } else {
             int startX = 0;
             int startY = 70;
-            if (orientation== LinearLayout.HORIZONTAL){
+            if (orientation == LinearLayout.HORIZONTAL) {
                 if (direction == Gravity.CENTER) {
                     startX = (100 - (SUB_WIDTH * size)) / 2;//小像起始位置
                 } else if (direction == Gravity.LEFT) {
@@ -479,7 +490,7 @@ public class ARVideoView implements View.OnTouchListener{
                 } else {
                     startX = (100 - (SUB_WIDTH * size)) / 2;
                 }
-            }else {
+            } else {
                 if (direction == Gravity.CENTER) {
                     startX = (100 - SUB_WIDTH) / 2;//小像起始位置
                 } else if (direction == Gravity.LEFT) {
@@ -497,6 +508,7 @@ public class ARVideoView implements View.OnTouchListener{
                 LocalVideoRender.w = 100;
                 LocalVideoRender.h = 100;
                 LocalVideoRender.mLayout.setPosition(0, 0, 100, 100);
+                LocalVideoRender.surfaceViewRenderer.setZOrderMediaOverlay(false);
                 LocalVideoRender.surfaceViewRenderer.requestLayout();
             }
             Iterator<Map.Entry<String, VideoView>> iter = mRemoteRenderList.entrySet().iterator();
@@ -516,12 +528,13 @@ public class ARVideoView implements View.OnTouchListener{
                     }
                     render.y = startY;
                 } else {
-                    render.x=startX;
+                    render.x = startX;
                     render.y = startY - (render.index - 1) * SUB_HEIGHT;
                 }
                 render.w = SUB_WIDTH;
                 render.h = SUB_HEIGHT;
                 render.mLayout.setPosition(render.x, render.y, render.w, render.h);
+                render.surfaceViewRenderer.setZOrderMediaOverlay(true);
                 render.surfaceViewRenderer.requestLayout();
             }
         }
@@ -625,7 +638,7 @@ public class ARVideoView implements View.OnTouchListener{
                 WIDTH = (int) ((mScreenWidth / 3f) / (mScreenWidth / 100));
             }
             int X = (100 - WIDTH * 3) / 2;
-            int Y = (100-HEIGHT*2)/2;
+            int Y = (100 - HEIGHT * 2) / 2;
             Iterator<Map.Entry<String, VideoView>> iter = mRemoteRenderList.entrySet().iterator();
             while (iter.hasNext()) {
                 Map.Entry<String, VideoView> entry = iter.next();
@@ -656,7 +669,7 @@ public class ARVideoView implements View.OnTouchListener{
                 WIDTH = (int) ((mScreenWidth / 3f) / (mScreenWidth / 100));
             }
             int X = (100 - WIDTH * 3) / 2;
-            int Y = (100-HEIGHT*2)/2;
+            int Y = (100 - HEIGHT * 2) / 2;
 //            int WIDTH = 100 / 3;
 //            int HEIGHT = 30;
             Iterator<Map.Entry<String, VideoView>> iter = mRemoteRenderList.entrySet().iterator();
@@ -672,50 +685,83 @@ public class ARVideoView implements View.OnTouchListener{
                     render.mLayout.setPosition(X + (WIDTH * 2), Y, WIDTH, HEIGHT);
                     render.surfaceViewRenderer.requestLayout();
                 } else if (render.index == 3) {
-                    render.mLayout.setPosition(X, HEIGHT+Y, WIDTH, HEIGHT);
+                    render.mLayout.setPosition(X, HEIGHT + Y, WIDTH, HEIGHT);
                     render.surfaceViewRenderer.requestLayout();
                 } else if (render.index == 4) {
-                    render.mLayout.setPosition(X + WIDTH, HEIGHT+Y, WIDTH, HEIGHT);
+                    render.mLayout.setPosition(X + WIDTH, HEIGHT + Y, WIDTH, HEIGHT);
                     render.surfaceViewRenderer.requestLayout();
                 } else if (render.index == 5) {
-                    render.mLayout.setPosition(X + (WIDTH * 2), HEIGHT+Y, WIDTH, HEIGHT);
+                    render.mLayout.setPosition(X + (WIDTH * 2), HEIGHT + Y, WIDTH, HEIGHT);
                     render.surfaceViewRenderer.requestLayout();
                 }
             }
         }
-        }
-
+    }
 
 
     private void SwitchViewToFullscreen(VideoView view1, VideoView fullscrnView) {
-        if (view1==null||fullscrnView==null){
+        if (view1 == null || fullscrnView == null) {
             return;
         }
-        int index, x, y, w, h;
+        if (view1.videoId.equals("ScreenShare")){
+            int index, x, y, w, h;
 
-        index = view1.index;
-        x = view1.x;
-        y = view1.y;
-        w = view1.w;
-        h = view1.h;
+            index = view1.index;
+            x = view1.x;
+            y = view1.y;
+            w = view1.w;
+            h = view1.h;
 
-        view1.index = fullscrnView.index;
-        view1.x = fullscrnView.x;
-        view1.y = fullscrnView.y;
-        view1.w = fullscrnView.w;
-        view1.h = fullscrnView.h;
+            view1.index = fullscrnView.index;
+            view1.w = 100;
+            view1.h = 27;
+            view1.x = 0;
+            view1.y = (int)(100-view1.h)/2;
 
-        fullscrnView.index = index;
-        fullscrnView.x = x;
-        fullscrnView.y = y;
-        fullscrnView.w = w;
-        fullscrnView.h = h;
 
-        fullscrnView.mLayout.setPosition(fullscrnView.x, fullscrnView.y, fullscrnView.w, fullscrnView.h);
-        view1.mLayout.setPosition(view1.x, view1.y, view1.w, view1.h);
+            fullscrnView.index = index;
+            fullscrnView.x = x;
+            fullscrnView.y = y;
+            fullscrnView.w = w;
+            fullscrnView.h = h;
 
-        updateVideoLayout(view1, fullscrnView);
+            fullscrnView.mLayout.setPosition(fullscrnView.x, fullscrnView.y, fullscrnView.w, fullscrnView.h);
+            view1.mLayout.setPosition(view1.x, view1.y, view1.w, view1.h);
+
+            updateVideoLayout(view1, fullscrnView);
+        }else {
+            int index, x, y, w, h;
+
+            index = view1.index;
+            x = view1.x;
+            y = view1.y;
+            w = view1.w;
+            h = view1.h;
+
+//            view1.index = fullscrnView.index;
+//            view1.x = fullscrnView.x;
+//            view1.y = fullscrnView.y;
+//            view1.w = fullscrnView.w;
+//            view1.h = fullscrnView.h;
+            view1.index = fullscrnView.index;
+            view1.x = 0;
+            view1.y = 0;
+            view1.w = 100;
+            view1.h = 100;
+            fullscrnView.index = index;
+            fullscrnView.x = x;
+            fullscrnView.y = y;
+            fullscrnView.w = w;
+            fullscrnView.h = h;
+
+            fullscrnView.mLayout.setPosition(fullscrnView.x, fullscrnView.y, fullscrnView.w, fullscrnView.h);
+            view1.mLayout.setPosition(view1.x, view1.y, view1.w, view1.h);
+
+            updateVideoLayout(view1, fullscrnView);
+        }
+
     }
+
     /**
      * 视频切换后更新视频的布局
      *
