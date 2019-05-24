@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import org.ar.common.enums.ARNetQuality;
 import org.ar.common.enums.ARVideoCommon;
+import org.ar.common.utils.AR_AudioManager;
 import org.ar.meet_kit.ARMeetEngine;
 import org.ar.meet_kit.ARMeetEvent;
 import org.ar.meet_kit.ARMeetKit;
@@ -38,6 +39,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
     private String meetId="";
     private String userId=(int)((Math.random()*9+1)*100000)+"";
 //    private String userId="654321";
+    AR_AudioManager arAudioManager;
     @Override
     public int getLayoutId() {
         return R.layout.activity_meeting;
@@ -83,7 +85,13 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         VideoRenderer localVideoRender = mVideoView.openLocalVideoRender();
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
         mMeetKit.joinRTCByToken("",meetId,userId,getUserInfo());
+        arAudioManager=AR_AudioManager.create(this, new Runnable() {
+            @Override
+            public void run() {
 
+            }
+        });
+        arAudioManager.init();
     }
 
     public String getUserInfo() {
@@ -440,4 +448,13 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             });
         }
     };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (arAudioManager!=null){
+            arAudioManager.close();
+            arAudioManager=null;
+        }
+    }
 }
