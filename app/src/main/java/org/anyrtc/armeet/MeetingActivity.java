@@ -112,7 +112,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 logAdapter.addData("方法：翻转摄像头");
                 break;
             case R.id.ib_audio:
-                mMeetKit.sendMessage("aaa","asas","dsadasdas");
                 if (ibAudio.isSelected()) {
                     ibAudio.setSelected(false);
                     mMeetKit.setLocalAudioEnable(true);//允许本地音频传输
