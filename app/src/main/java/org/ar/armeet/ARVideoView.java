@@ -36,7 +36,7 @@ import static android.view.View.VISIBLE;
 /**
  * Created by liuxiaozhong on 2019/1/11.
  */
-public class ARVideoView implements View.OnTouchListener{
+public class ARVideoView {
 
     public RelativeLayout rlVideoGroup;//所有视频的容器布局
 
@@ -60,6 +60,8 @@ public class ARVideoView implements View.OnTouchListener{
     private static int SUB_WIDTH = 0;
     private static int SUB_HEIGHT = 0;
 
+    private int bottomHeight;
+
     public ARVideoView(RelativeLayout rlVideoGroup, EglBase eglBase, Context context, boolean isSameSize) {
 
         this.rlVideoGroup = rlVideoGroup;
@@ -72,51 +74,10 @@ public class ARVideoView implements View.OnTouchListener{
         mScreenHeight = ScreenUtils.getScreenHeight(mContext) - ScreenUtils.getStatusHeight(mContext);
     }
 
-    public void setVideoSwitchEnable(boolean enable) {
-        if (!isSameSize) {
-            rlVideoGroup.setOnTouchListener(this);
-        }
+    public void setBottomHeight(int bottomHeight) {
+        this.bottomHeight= (int) (((float)bottomHeight/mScreenHeight)*100f);
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            int startX = (int) event.getX();
-            int startY = (int) event.getY();
-            if (LocalVideoRender.Hited(startX, startY)) {
-                return true;
-            } else {
-                Iterator<Map.Entry<String, VideoView>> iter = mRemoteRenderList.entrySet().iterator();
-                while (iter.hasNext()) {
-                    Map.Entry<String, VideoView> entry = iter.next();
-                    String peerId = entry.getKey();
-                    VideoView render = entry.getValue();
-                    if (render.Hited(startX, startY)) {
-                        return true;
-                    }
-                }
-            }
-        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            int startX = (int) event.getX();
-            int startY = (int) event.getY();
-            if (LocalVideoRender.Hited(startX, startY)) {
-                SwitchViewToFullscreen(LocalVideoRender, GetFullScreen());
-                return true;
-            } else {
-                Iterator<Map.Entry<String, VideoView>> iter = mRemoteRenderList.entrySet().iterator();
-                while (iter.hasNext()) {
-                    Map.Entry<String, VideoView> entry = iter.next();
-                    String peerId = entry.getKey();
-                    VideoView render = entry.getValue();
-                    if (render.Hited(startX, startY)) {
-                        SwitchViewToFullscreen(render, GetFullScreen());
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
 
 
     /**
@@ -271,6 +232,17 @@ public class ARVideoView implements View.OnTouchListener{
         LocalVideoRender.mLayout.setPosition(
                 LocalVideoRender.x, LocalVideoRender.y, LocalVideoRender.w, LocalVideoRender.h);
         LocalVideoRender.surfaceViewRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
+        LocalVideoRender.surfaceViewRenderer.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (LocalVideoRender.isFullScreen()){
+                    return false;
+                }else {
+                    SwitchViewToFullscreen(LocalVideoRender,GetFullScreen());
+                }
+                return false;
+            }
+        });
         LocalVideoRender.flLoading.setVisibility(VISIBLE);
         LocalVideoRender.surfaceViewRenderer.addFrameListener(new EglRenderer.FrameListener() {
             @Override
@@ -410,10 +382,25 @@ public class ARVideoView implements View.OnTouchListener{
                 }
             }, 1f);
             remoteVideoRender.videoRenderer = new VideoRenderer(remoteVideoRender.surfaceViewRenderer);
+            final VideoView finalRemoteVideoRender1 = remoteVideoRender;
+            remoteVideoRender.surfaceViewRenderer.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (finalRemoteVideoRender1.isFullScreen()){
+                        return false;
+                    }else {
+                        SwitchViewToFullscreen(finalRemoteVideoRender1,GetFullScreen());
+                    }
+                    return false;
+                }
+            });
             mRemoteRenderList.put(videoId, remoteVideoRender);
             if (isSameSize){
                 updateVideoViewSameSize();
             }else {
+                if (!LocalVideoRender.isFullScreen()){
+                    SwitchViewToFullscreen(LocalVideoRender,GetFullScreen());
+                }
                 updateVideoView1Big();
             }
         }
@@ -468,7 +455,7 @@ public class ARVideoView implements View.OnTouchListener{
             }
         } else {
             int startX = 0;
-            int startY = 70;
+            int startY = 100-bottomHeight-SUB_HEIGHT-2;
             if (orientation== LinearLayout.HORIZONTAL){
                 if (direction == Gravity.CENTER) {
                     startX = (100 - (SUB_WIDTH * size)) / 2;//小像起始位置

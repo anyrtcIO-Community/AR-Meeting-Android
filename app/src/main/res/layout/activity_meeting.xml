@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+
     android:layout_height="match_parent">
 
     <RelativeLayout
@@ -64,46 +65,62 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ll_bottom_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="20dp">
-
-        <Button
-            android:id="@+id/ib_audio"
+        android:paddingBottom="20dp"
+       >
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:background="@null"
-            android:drawableTop="@drawable/selector_audio_manager"
-            android:text="音频"
-            android:textColor="#ffffff"
-            android:drawablePadding="12dp"/>
+            android:layout_weight="1">
+            <Button
+                android:id="@+id/ib_audio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@null"
+                android:drawableTop="@drawable/selector_audio_manager"
+                android:text="音频"
+                android:textColor="#ffffff"
+                android:drawablePadding="12dp"/>
+        </FrameLayout>
 
-        <Button
-            android:id="@+id/ib_leave"
+
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1">
+        <Button
+            android:id="@+id/ib_leave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:background="@null"
             android:text="离开"
             android:textColor="#ffffff"
+            android:layout_gravity="center"
             android:drawablePadding="12dp"
             android:drawableTop="@drawable/img_hang_up" />
-
-        <Button
-            android:id="@+id/ib_video"
+        </FrameLayout>
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="1"
+            android:layout_weight="1">
+        <Button
+            android:id="@+id/ib_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:background="@null"
             android:text="视频"
             android:textColor="#ffffff"
             android:drawablePadding="12dp"
             android:drawableTop="@drawable/selector_video_manager" />
-
+        </FrameLayout>
     </LinearLayout>
 
     <RelativeLayout
