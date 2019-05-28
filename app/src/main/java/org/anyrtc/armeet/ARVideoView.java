@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import org.anyrtc.common.utils.ScreenUtils;
 import org.webrtc.EglBase;
@@ -37,7 +38,7 @@ import static android.view.View.VISIBLE;
 /**
  * Created by liuxiaozhong on 2019/1/11.
  */
-public class ARVideoView implements View.OnTouchListener {
+public class ARVideoView  {
 
     public RelativeLayout rlVideoGroup;//所有视频的容器布局
 
@@ -63,6 +64,8 @@ public class ARVideoView implements View.OnTouchListener {
     private static int SUB_WIDTH = 0;
     private static int SUB_HEIGHT = 0;
 
+    private int bottomHeight;
+
     public ARVideoView(RelativeLayout rlVideoGroup, EglBase eglBase, Context context, boolean isSameSize) {
 
         this.rlVideoGroup = rlVideoGroup;
@@ -75,52 +78,10 @@ public class ARVideoView implements View.OnTouchListener {
         mScreenHeight = ScreenUtils.getScreenHeight(mContext) - ScreenUtils.getStatusHeight(mContext);
     }
 
-    public void setVideoSwitchEnable(boolean enable) {
-        if (!isSameSize) {
-            rlVideoGroup.setOnTouchListener(this);
-        }
-    }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            int startX = (int) event.getX();
-            int startY = (int) event.getY();
-            if (LocalVideoRender.Hited(startX, startY)) {
-                return true;
-            } else {
-                Iterator<Map.Entry<String, VideoView>> iter = mRemoteRenderList.entrySet().iterator();
-                while (iter.hasNext()) {
-                    Map.Entry<String, VideoView> entry = iter.next();
-                    String peerId = entry.getKey();
-                    VideoView render = entry.getValue();
-                    if (render.Hited(startX, startY)) {
-                        return true;
-                    }
-                }
-            }
-        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            int startX = (int) event.getX();
-            int startY = (int) event.getY();
-            if (LocalVideoRender.Hited(startX, startY)) {
-                SwitchViewToFullscreen(LocalVideoRender, GetFullScreen());
-                return true;
-            } else {
-                Iterator<Map.Entry<String, VideoView>> iter = mRemoteRenderList.entrySet().iterator();
-                while (iter.hasNext()) {
-                    Map.Entry<String, VideoView> entry = iter.next();
-                    String peerId = entry.getKey();
-                    VideoView render = entry.getValue();
-                    if (render.Hited(startX, startY)) {
-                        SwitchViewToFullscreen(render, GetFullScreen());
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+    public void setBottomHeight(int bottomHeight) {
+       this.bottomHeight= (int) (((float)bottomHeight/mScreenHeight)*100f);
     }
-
 
     /**
      * 一个VideoView对象 就是一个视频渲染对象 里面的方法 UI 可以根据需求自定义
@@ -136,8 +97,9 @@ public class ARVideoView implements View.OnTouchListener {
         public SurfaceViewRenderer surfaceViewRenderer = null; //显示视频的SurfaceView
         private FrameLayout flLoading; //视频显示前的Loading
         public VideoRenderer videoRenderer = null; //底层视频渲染对象
+        public RelativeLayout rl_root;
 
-        public VideoView(String videoId, Context ctx, EglBase eglBase, int index, int x, int y, int w, int h) {
+        public VideoView(final String videoId, final Context ctx, EglBase eglBase, int index, int x, int y, int w, int h) {
             this.videoId = videoId;
             this.index = index;
             this.x = x;
@@ -149,6 +111,7 @@ public class ARVideoView implements View.OnTouchListener {
             mLayout.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
             View view = View.inflate(ctx, R.layout.layout_arvideo, null);//这个View可完全自定义 需要显示名字或者其他图标可以在里面加
             flLoading = (FrameLayout) view.findViewById(R.id.fl_video_loading);
+            rl_root=view.findViewById(R.id.rl_root);
             surfaceViewRenderer = (SurfaceViewRenderer) view.findViewById(R.id.sv_video_render);
             surfaceViewRenderer.init(eglBase.getEglBaseContext(), null);
             surfaceViewRenderer.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
@@ -279,7 +242,20 @@ public class ARVideoView implements View.OnTouchListener {
         LocalVideoRender.mLayout.setPosition(
                 LocalVideoRender.x, LocalVideoRender.y, LocalVideoRender.w, LocalVideoRender.h);
         LocalVideoRender.surfaceViewRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
+        LocalVideoRender.surfaceViewRenderer.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (LocalVideoRender.isFullScreen()){
+                    return false;
+                }else {
+                    SwitchViewToFullscreen(LocalVideoRender,GetFullScreen());
+                }
+                return false;
+            }
+        });
         LocalVideoRender.flLoading.setVisibility(VISIBLE);
+
+
         LocalVideoRender.surfaceViewRenderer.addFrameListener(new EglRenderer.FrameListener() {
             @Override
             public void onFrame(Bitmap frame) {
@@ -391,7 +367,7 @@ public class ARVideoView implements View.OnTouchListener {
      * @param videoId 视频ID
      * @return
      */
-    public VideoRenderer openRemoteVideoRender(String videoId) {
+    public VideoRenderer openRemoteVideoRender(final String videoId) {
         VideoView remoteVideoRender = mRemoteRenderList.get(videoId);
         if (remoteVideoRender == null) {
             int size = getVideoRenderSize();
@@ -419,12 +395,29 @@ public class ARVideoView implements View.OnTouchListener {
                 }
             }, 1f);
             remoteVideoRender.videoRenderer = new VideoRenderer(remoteVideoRender.surfaceViewRenderer);
-            mRemoteRenderList.put(videoId, remoteVideoRender);
+
+            final VideoView finalRemoteVideoRender1 = remoteVideoRender;
+            remoteVideoRender.surfaceViewRenderer.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (finalRemoteVideoRender1.isFullScreen()){
+                        return false;
+                    }else {
+                        SwitchViewToFullscreen(finalRemoteVideoRender1,GetFullScreen());
+                    }
+                    return false;
+                }
+            });
+            mRemoteRenderList.put(videoId, finalRemoteVideoRender1);
             if (isSameSize) {
                 updateVideoViewSameSize();
             } else {
+                if (!LocalVideoRender.isFullScreen()){
+                    SwitchViewToFullscreen(LocalVideoRender,GetFullScreen());
+                }
                 updateVideoView1Big();
             }
+
         }
         return remoteVideoRender.videoRenderer;
     }
@@ -474,12 +467,11 @@ public class ARVideoView implements View.OnTouchListener {
                 LocalVideoRender.w = 100;
                 LocalVideoRender.h = 100;
                 LocalVideoRender.mLayout.setPosition(0, 0, 100, 100);
-                LocalVideoRender.surfaceViewRenderer.setZOrderMediaOverlay(false);
                 LocalVideoRender.surfaceViewRenderer.requestLayout();
             }
         } else {
             int startX = 0;
-            int startY = 70;
+            int startY = 100-bottomHeight-SUB_HEIGHT-2;
             if (orientation == LinearLayout.HORIZONTAL) {
                 if (direction == Gravity.CENTER) {
                     startX = (100 - (SUB_WIDTH * size)) / 2;//小像起始位置
@@ -508,7 +500,6 @@ public class ARVideoView implements View.OnTouchListener {
                 LocalVideoRender.w = 100;
                 LocalVideoRender.h = 100;
                 LocalVideoRender.mLayout.setPosition(0, 0, 100, 100);
-                LocalVideoRender.surfaceViewRenderer.setZOrderMediaOverlay(false);
                 LocalVideoRender.surfaceViewRenderer.requestLayout();
             }
             Iterator<Map.Entry<String, VideoView>> iter = mRemoteRenderList.entrySet().iterator();
@@ -534,7 +525,6 @@ public class ARVideoView implements View.OnTouchListener {
                 render.w = SUB_WIDTH;
                 render.h = SUB_HEIGHT;
                 render.mLayout.setPosition(render.x, render.y, render.w, render.h);
-                render.surfaceViewRenderer.setZOrderMediaOverlay(true);
                 render.surfaceViewRenderer.requestLayout();
             }
         }
@@ -718,13 +708,11 @@ public class ARVideoView implements View.OnTouchListener {
             view1.x = 0;
             view1.y = (int)(100-view1.h)/2;
 
-
             fullscrnView.index = index;
             fullscrnView.x = x;
             fullscrnView.y = y;
             fullscrnView.w = w;
             fullscrnView.h = h;
-
             fullscrnView.mLayout.setPosition(fullscrnView.x, fullscrnView.y, fullscrnView.w, fullscrnView.h);
             view1.mLayout.setPosition(view1.x, view1.y, view1.w, view1.h);
 
@@ -753,7 +741,6 @@ public class ARVideoView implements View.OnTouchListener {
             fullscrnView.y = y;
             fullscrnView.w = w;
             fullscrnView.h = h;
-
             fullscrnView.mLayout.setPosition(fullscrnView.x, fullscrnView.y, fullscrnView.w, fullscrnView.h);
             view1.mLayout.setPosition(view1.x, view1.y, view1.w, view1.h);
 
@@ -776,8 +763,8 @@ public class ARVideoView implements View.OnTouchListener {
             view2.mLayout.requestLayout();
             rlVideoGroup.removeView(view1.mLayout);
             rlVideoGroup.removeView(view2.mLayout);
-            rlVideoGroup.addView(view1.mLayout, -1);
-            rlVideoGroup.addView(view2.mLayout, 0);
+            rlVideoGroup.addView(view1.mLayout);
+            rlVideoGroup.addView(view2.mLayout);
         } else if (view2.isFullScreen()) {
             view1.surfaceViewRenderer.setZOrderMediaOverlay(true);
             view2.surfaceViewRenderer.setZOrderMediaOverlay(false);
@@ -785,15 +772,15 @@ public class ARVideoView implements View.OnTouchListener {
             view1.mLayout.requestLayout();
             rlVideoGroup.removeView(view1.mLayout);
             rlVideoGroup.removeView(view2.mLayout);
-            rlVideoGroup.addView(view1.mLayout, 0);
-            rlVideoGroup.addView(view2.mLayout, -1);
+            rlVideoGroup.addView(view1.mLayout);
+            rlVideoGroup.addView(view2.mLayout);
         } else {
             view1.mLayout.requestLayout();
             view2.mLayout.requestLayout();
             rlVideoGroup.removeView(view1.mLayout);
             rlVideoGroup.removeView(view2.mLayout);
-            rlVideoGroup.addView(view1.mLayout, 0);
-            rlVideoGroup.addView(view2.mLayout, 0);
+            rlVideoGroup.addView(view1.mLayout);
+            rlVideoGroup.addView(view2.mLayout);
         }
     }
 

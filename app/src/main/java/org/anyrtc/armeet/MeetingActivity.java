@@ -33,6 +33,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
     Button ibVideo,ibAudio,ibHangUp;
     RecyclerView rvLog;
     TextView tvRoomId;
+    LinearLayout ll_bottom_layout;
     private LogAdapter logAdapter;
     private ARVideoView mVideoView;
     private ARMeetKit mMeetKit;
@@ -54,7 +55,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         ibCamera = findViewById(R.id.btn_camare);
         rl_log_layout=findViewById(R.id.rl_log_layout);
         ibtn_close_log=findViewById(R.id.ibtn_close_log);
-
+        ll_bottom_layout=findViewById(R.id.ll_bottom_layout);
         ibVideo = findViewById(R.id.ib_video);
         ibAudio = findViewById(R.id.ib_audio);
         ibLog = findViewById(R.id.btn_log);
@@ -72,7 +73,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         tvRoomId.setText("房间ID："+meetId);
         mVideoView=new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(),this,false);
         mVideoView.setVideoViewLayout(false, Gravity.CENTER,LinearLayout.HORIZONTAL);
-        mVideoView.setVideoSwitchEnable(true);
         //获取配置类
         ARMeetOption anyRTCMeetOption = ARMeetEngine.Inst().getARMeetOption();
         //设置默认为前置摄像头
@@ -112,6 +112,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 logAdapter.addData("方法：翻转摄像头");
                 break;
             case R.id.ib_audio:
+                mMeetKit.sendMessage("aaa","asas","dsadasdas");
                 if (ibAudio.isSelected()) {
                     ibAudio.setSelected(false);
                     mMeetKit.setLocalAudioEnable(true);//允许本地音频传输
@@ -443,4 +444,15 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             });
         }
     };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ll_bottom_layout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mVideoView.setBottomHeight(ll_bottom_layout.getMeasuredHeight());
+            }
+        },100);
+    }
 }
