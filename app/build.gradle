@@ -32,5 +32,5 @@ dependencies {
     compile 'com.gyf.barlibrary:barlibrary:2.3.0'
     compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.22'
     compile 'com.android.support.constraint:constraint-layout:1.1.3'
-    compile 'org.ar:meet_kit:3.0.1'
+    compile 'org.ar:meet_kit:3.0.2'
 }

@@ -12,7 +12,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import org.anyrtc.common.utils.ScreenUtils;
 import org.webrtc.EglBase;
