@@ -1,8 +1,6 @@
 package org.ar.meet_kit;
 
-
 import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.PermissionChecker;
 import android.text.TextUtils;
 import android.util.Log;
@@ -10,9 +8,6 @@ import android.util.Log;
 import org.ar.common.enums.ARNetQuality;
 import org.ar.common.enums.ARVideoCommon;
 import org.ar.common.utils.ARUtils;
-import org.ar.common.utils.LooperExecutor;
-import org.ar.common.enums.ARNetQuality;
-import org.ar.common.enums.ARVideoCommon;
 import org.ar.common.utils.LooperExecutor;
 import org.webrtc.CameraEnumerationAndroid;
 import org.webrtc.EglBase;
@@ -365,6 +360,16 @@ public class ARMeetKit {
                 synchronized (ARMeetKit.this) {
                     int ret = 0;
                     int permission = PermissionChecker.checkSelfPermission(ARMeetEngine.Inst().context(), CAMERA);
+                    if (mVideoCapturer != null) {
+                        try {
+                            mVideoCapturer.stopCapture();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        nativeSetVideoCapturer(null, 0);
+                        mVideoCapturer = null;
+                    }
+
                     if (permission == PackageManager.PERMISSION_GRANTED) {
                         // We don't have permission so prompt the user
                         if (mVideoCapturer == null) {
@@ -379,6 +384,7 @@ public class ARMeetKit {
                             }
                             Log.d(TAG, "Opening camera: " + cameraDeviceName);
                             mVideoCapturer = VideoCapturerAndroid.create(cameraDeviceName, null);
+
                             if (mVideoCapturer == null) {
                                 Log.e("sys", "Failed to open camera");
                                 LooperExecutor.exchange(result, 2);
@@ -472,6 +478,92 @@ public class ARMeetKit {
     }
 
     /**
+     * 打开第三方流媒体
+     * @param url 流媒体地址
+     */
+    public int openThirdNetStream(final String url){
+        final Exchanger<Integer> result = new Exchanger<Integer>();
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                int ret = 0;
+                ret = nativeOpenThirdNetStream(url);
+                LooperExecutor.exchange(result, ret);
+            }
+        });
+        return LooperExecutor.exchange(result, 0);
+    }
+
+    /**
+     * 关闭播放第三方流媒体
+     * @param thirdMediaType 0：关闭所有辐流；1：关闭屏幕共享；2：关闭第三方流媒体
+     */
+    public void closeThirdNetStream(final ARVideoCommon.ARMediaType thirdMediaType) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeCloseThirdStream(thirdMediaType.type);
+            }
+        });
+    }
+
+    /**
+     * 网络流本地显示。打开网络流成功之后再设置。
+     * @param render
+     */
+    public void setThirdNetStreamRender(final HwRender render) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeSetThirdNetStreamRender(render);
+            }
+        });
+    }
+
+    /**
+     * 使用rtsp/rtmp等流媒体地址作为摄像头
+     * @param url 流媒体地址
+     */
+    public int openRtspCap(final String url){
+        final Exchanger<Integer> result = new Exchanger<Integer>();
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                int ret = 0;
+                ret = nativeOpenRtspCap(url);
+                LooperExecutor.exchange(result, ret);
+            }
+        });
+        return LooperExecutor.exchange(result, 0);
+    }
+
+    /**
+     * 关闭流媒体摄像头
+     */
+    public void closeRtspCap() {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeCloseRtspCap();
+            }
+        });
+    }
+
+    /**
+     * 使用硬解显示视频（仅在定制终端中使用）
+     * @param publishId
+     * @param hwRender
+     */
+    public void setRTCHwVideoRender(final String publishId, final HwRender hwRender) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeSetRTCHwVideoRender(publishId, hwRender);
+            }
+        });
+    }
+
+    /**
      * 设置共享信息
      *
      * @param type 共享类型（自定义）
@@ -485,6 +577,10 @@ public class ARMeetKit {
         });
     }
 
+    /**
+     * 关闭共享信息
+     * @param type 共享类型（自定义）
+     */
     public void closeShare(final int type) {
         mExecutor.execute(new Runnable() {
             @Override
@@ -538,6 +634,30 @@ public class ARMeetKit {
                 nativeDestroy();
             }
         });
+    }
+
+    /**
+     * 外部视频采集的yuv数据流,
+     * @param bEnable
+     * @param nType 0:yuv 1:rgb
+     */
+    public void setExternalCameraCapturer(final boolean bEnable, final int nType) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeSetExternalCameraCapturer(bEnable, nType);
+            }
+        });
+    }
+
+    /**
+     * 外部yuv数据, 使用此接口时， 不能使用setLocalVideoCapturer接口
+     * @param p_yuv
+     * @param width
+     * @param height
+     */
+    public void setVideoYUV420PData(byte[] p_yuv, int width, int height) {
+        nativeSetYUV420PData(p_yuv, width, height);
     }
 
     /**
@@ -989,11 +1109,13 @@ public class ARMeetKit {
 
     private native void nativeSetVideoCapturer(VideoCapturer capturer, long nativeRenderer);
 
-    private native void nativeSetVideoExCapturer(Boolean enable, int type);
+    private native void nativeSetExternalCameraCapturer(boolean enable, int type);
 
-    private native void nativeSetVideoYUV420PData(char y, int stride_y, char u, int stride_u, char v, int stride_v, int width, int height);
+    private native void nativeSetYUV420PData(byte[] p_rgb, int width, int height);
 
-    private native void nativeSetVideoCapturer(char p_rgb, int width, int height);
+    private native void nativeSetVideoYUV420PData(byte[] y, int stride_y, byte[]  u, int stride_u, byte[]  v, int stride_v, int width, int height);
+
+    private native void nativeSetVideoCapturer(byte[]  p_rgb, int width, int height);
 
     private native void nativeSetVideoSize(int nWidth, int nHeight, int nBitrate);
 
@@ -1039,11 +1161,21 @@ public class ARMeetKit {
 
     private native boolean nativeNetworkStatusEnabled();
 
-    private native void nativeDoRestartAudRecord();
-
     private native void nativeDestroy();
 
     private native long nativeGetAnyrtcUvcCallabck();
 
     private native void nativeSetUvcVideoCapturer(Object capturer, String strImg);
+
+    private native int nativeOpenThirdNetStream(String pStrUrl);
+
+    private native void nativeCloseThirdStream(int nIdx);
+
+    private native void nativeSetThirdNetStreamRender(Object hwRenderer);
+
+    private native void nativeSetRTCHwVideoRender(String strRtcPubId, Object hwRenderer);
+
+    private native int nativeOpenRtspCap(String pStrUrl);
+
+    private native void nativeCloseRtspCap();
 }

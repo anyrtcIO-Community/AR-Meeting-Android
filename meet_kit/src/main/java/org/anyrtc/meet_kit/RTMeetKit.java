@@ -815,10 +815,10 @@ public class RTMeetKit {
         return LooperExecutor.exchange(result, 1);
     }
 
-
     /**
      * 打开第三方流媒体
      * @param strUrl 流媒体地址
+     * @return 0/2：未进会成功/打开成功，
      */
     public int openThirdNetStream(final String strUrl){
         final Exchanger<Integer> result = new Exchanger<Integer>();
@@ -846,7 +846,6 @@ public class RTMeetKit {
         });
     }
 
-
     /**
      * 网络流本地显示。打开网络流成功之后再设置。
      * @param render
@@ -860,8 +859,41 @@ public class RTMeetKit {
         });
     }
 
+    /**
+     * 使用rtsp/rtmp等流媒体地址作为摄像头
+     * @param strUrl
+     * @return 0:打开成功
+     */
+    public int openRtspCap(final String strUrl){
+        final Exchanger<Integer> result = new Exchanger<Integer>();
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                int ret = 0;
+                ret = nativeOpenRtspCap(strUrl);
+                LooperExecutor.exchange(result, ret);
+            }
+        });
+        return LooperExecutor.exchange(result, 0);
+    }
 
+    /**
+     * 关闭流媒体摄像头
+     */
+    public void closeRtspCap() {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeCloseRtspCap();
+            }
+        });
+    }
 
+    /**
+     * 使用硬解显示视频（仅在定制终端中使用）
+     * @param strRtcPubId
+     * @param hwRender
+     */
     public void setRTCHwVideoRender(final String strRtcPubId, final HwRender hwRender) {
         mExecutor.execute(new Runnable() {
             @Override
@@ -957,7 +989,6 @@ public class RTMeetKit {
 
     private native void nativeSetZoomPageIdx(int nIdx, int nShowNum);
 
-
     private native long nativeGetAnyrtcUvcCallabck();
 
     private native void nativeSetUvcVideoCapturer(Object capturer, String strImg);
@@ -969,4 +1000,8 @@ public class RTMeetKit {
     private native void nativeSetThirdNetStreamRender(Object hwRenderer);
 
     private native void nativeSetRTCHwVideoRender(String strRtcPubId, Object hwRenderer);
+
+    private native int nativeOpenRtspCap(String pStrUrl);
+
+    private native void nativeCloseRtspCap();
 }

@@ -61,7 +61,4 @@ public abstract class ARMeetEvent  {
     public abstract void onRtcUserOut(String peerId, String publishId, String userId);
 
     public abstract void onRTCZoomPageInfo(ARMeetZoomMode zoomMode, int allPages, int curPage, int allRender, int screenIndex, int num);
-
-
-
 }
