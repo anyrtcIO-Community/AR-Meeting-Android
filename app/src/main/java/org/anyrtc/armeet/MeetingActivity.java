@@ -450,7 +450,9 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         ll_bottom_layout.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mVideoView.setBottomHeight(ll_bottom_layout.getMeasuredHeight());
+                if (mVideoView!=null&&ll_bottom_layout!=null) {
+                    mVideoView.setBottomHeight(ll_bottom_layout.getMeasuredHeight());
+                } 
             }
         },100);
     }
