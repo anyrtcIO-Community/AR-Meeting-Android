@@ -40,6 +40,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
     private String meetId="";
     private String userId=(int)((Math.random()*9+1)*100000)+"";
 //    private String userId="654321";
+    String publishID="";
     @Override
     public int getLayoutId() {
         return R.layout.activity_meeting;
@@ -78,7 +79,8 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         //设置默认为前置摄像头
         anyRTCMeetOption.setDefaultFrontCamera(true);
         anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile360x480);
-        anyRTCMeetOption.setMeetType(ARMeetType.Normal);
+        anyRTCMeetOption.setMeetType(ARMeetType.Host);
+        anyRTCMeetOption.setHost(true);
         anyRTCMeetOption.setMediaType(ARVideoCommon.ARMediaType.Video);
         mMeetKit = new ARMeetKit(arMeetEvent);
         VideoRenderer localVideoRender = mVideoView.openLocalVideoRender();
@@ -188,7 +190,9 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 @Override
                 public void run() {
                     logAdapter.addData("回调：onRTCOpenRemoteVideoRender 远程视频流接入即将渲染显示 publishId："+publishId+"\n peerId:"+peerId+"user:"+userId);
-
+                    if (publishID.isEmpty()){
+                        publishID=peerId;
+                    }
                     final VideoRenderer render = mVideoView.openRemoteVideoRender(publishId);
                     if (null != render) {
                         mMeetKit.setRemoteVideoRender(publishId, render.GetRenderPointer());

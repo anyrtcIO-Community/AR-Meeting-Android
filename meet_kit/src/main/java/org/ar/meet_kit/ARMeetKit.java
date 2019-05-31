@@ -729,13 +729,13 @@ public class ARMeetKit {
         });
     }
 
-    public void setBroadCast(final String publishId, final boolean enable) {
+    public void setBroadCast(final String peerId, final boolean enable) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 if (null != mVideoCapturer) {
-                    if (null != publishId) {
-                        nativeSetBroadCast(enable, publishId);
+                    if (null != peerId) {
+                        nativeSetBroadCast(enable, peerId);
                     }
                 }
             }
@@ -745,15 +745,15 @@ public class ARMeetKit {
     /**
      * 设置单聊
      *
-     * @param publishId 单聊用户的rtcPeerId
+     * @param peerId 单聊用户的rtcPeerId
      * @param enable
      */
-    public void setTalkOnly(final String publishId, final boolean enable) {
+    public void setTalkOnly(final String peerId, final boolean enable) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 if (null != mVideoCapturer) {
-                    nativeSetTalkOnly(enable, publishId);
+                    nativeSetTalkOnly(enable, peerId);
                 }
             }
         });
