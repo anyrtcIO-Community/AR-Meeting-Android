@@ -18,7 +18,7 @@ AR-Meeting-Android视频会议，基于ARMeetEngine SDK，支持视频、语音�
 
 ```
 dependencies {
-compile 'org.ar:meet_kit:3.0.2'
+compile 'org.ar:meet_kit:3.0.3'
 }
 ```
 
@@ -27,7 +27,7 @@ compile 'org.ar:meet_kit:3.0.2'
 <dependency>
   <groupId>org.ar</groupId>
   <artifactId>meet_kit</artifactId>
-  <version>3.0.2</version>
+  <version>3.0.3</version>
   <type>pom</type>
 </dependency>
 ```
