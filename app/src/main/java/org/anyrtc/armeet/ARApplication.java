@@ -14,5 +14,7 @@ public class ARApplication extends Application {
     public void onCreate() {
         super.onCreate();
         ARMeetEngine.Inst().initEngine(getApplicationContext(), DeveloperInfo.APPID,DeveloperInfo.APPTOKEN);
+
     }
+
 }
