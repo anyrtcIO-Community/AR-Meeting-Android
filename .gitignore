@@ -58,3 +58,4 @@ workspace.xml
 
 # Keystore files
 *.jks
+meet_kit/src/main/JniLibs/JniLibs.zip
