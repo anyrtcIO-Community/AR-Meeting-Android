@@ -5,6 +5,7 @@ import android.support.v4.content.PermissionChecker;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.anyrtc.meet_kit.RTMeetKit;
 import org.ar.common.enums.ARNetQuality;
 import org.ar.common.enums.ARVideoCommon;
 import org.ar.common.utils.ARUtils;
@@ -238,22 +239,23 @@ public class ARMeetKit {
     }
 
 
-     /**
-    设置远端音视频是否传输
+    /**
+     * 设置远端音视频是否传输
+     *
+     * @param peerId      RTC服务生成的标识Id
+     * @param audioEnable true传输，false不传输
+     * @param videoEnable true传输，false不传输
+     */
+    @Deprecated
+    public void setRemoteAVEnable(final String peerId, final boolean audioEnable, final boolean videoEnable) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeSetRemotePeerAVEnable(peerId, audioEnable, videoEnable);
+            }
+        });
+    }
 
-    @param peerId RTC服务生成的标识Id
-    @param audioEnable true传输，false不传输
-    @param videoEnable true传输，false不传输
-    */
-     @Deprecated
-     public void setRemoteAVEnable(final String peerId, final boolean audioEnable,final boolean videoEnable) {
-         mExecutor.execute(new Runnable() {
-             @Override
-             public void run() {
-                 nativeSetRemotePeerAVEnable(peerId, audioEnable,videoEnable);
-             }
-         });
-     }
     /**
      * 不接收某路的音频
      *
@@ -440,6 +442,7 @@ public class ARMeetKit {
             }
         });
     }
+
     /**
      * 停止相机预览
      */
@@ -479,9 +482,10 @@ public class ARMeetKit {
 
     /**
      * 打开第三方流媒体
+     *
      * @param url 流媒体地址
      */
-    public int openThirdNetStream(final String url){
+    public int openThirdNetStream(final String url) {
         final Exchanger<Integer> result = new Exchanger<Integer>();
         mExecutor.execute(new Runnable() {
             @Override
@@ -496,6 +500,7 @@ public class ARMeetKit {
 
     /**
      * 关闭播放第三方流媒体
+     *
      * @param thirdMediaType 0：关闭所有辐流；1：关闭屏幕共享；2：关闭第三方流媒体
      */
     public void closeThirdNetStream(final ARVideoCommon.ARMediaType thirdMediaType) {
@@ -509,6 +514,7 @@ public class ARMeetKit {
 
     /**
      * 网络流本地显示。打开网络流成功之后再设置。
+     *
      * @param render
      */
     public void setThirdNetStreamRender(final HwRender render) {
@@ -522,9 +528,10 @@ public class ARMeetKit {
 
     /**
      * 使用rtsp/rtmp等流媒体地址作为摄像头
+     *
      * @param url 流媒体地址
      */
-    public int openRtspCap(final String url){
+    public int openRtspCap(final String url) {
         final Exchanger<Integer> result = new Exchanger<Integer>();
         mExecutor.execute(new Runnable() {
             @Override
@@ -551,6 +558,7 @@ public class ARMeetKit {
 
     /**
      * 使用硬解显示视频（仅在定制终端中使用）
+     *
      * @param publishId
      * @param hwRender
      */
@@ -579,6 +587,7 @@ public class ARMeetKit {
 
     /**
      * 关闭共享信息
+     *
      * @param type 共享类型（自定义）
      */
     public void closeShare(final int type) {
@@ -638,8 +647,9 @@ public class ARMeetKit {
 
     /**
      * 外部视频采集的yuv数据流,
+     *
      * @param bEnable
-     * @param nType 0:yuv 1:rgb
+     * @param nType   0:yuv 1:rgb
      */
     public void setExternalCameraCapturer(final boolean bEnable, final int nType) {
         mExecutor.execute(new Runnable() {
@@ -652,6 +662,7 @@ public class ARMeetKit {
 
     /**
      * 外部yuv数据, 使用此接口时， 不能使用setLocalVideoCapturer接口
+     *
      * @param p_yuv
      * @param width
      * @param height
@@ -677,7 +688,7 @@ public class ARMeetKit {
                 int permission = PermissionChecker.checkSelfPermission(ARMeetEngine.Inst().context(), RECORD_AUDIO);
                 if (permission == PackageManager.PERMISSION_GRANTED) {
                     // We have permission granted to the user
-                    if (null!=token&&!token.equals("")) {
+                    if (null != token && !token.equals("")) {
                         nativeSetUserToken(token);
                     }
                     if (!TextUtils.isEmpty(anyRTCId)) {
@@ -855,35 +866,35 @@ public class ARMeetKit {
     private ARMeetHelper rtMeetHelper = new ARMeetHelper() {
         @Override
         public void OnRtcJoinMeetOK(String anyRTCId) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCJoinMeetOK(anyRTCId);
             }
         }
 
         @Override
         public void OnRtcJoinMeetFailed(String anyRTCId, int nCode, String strReason) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCJoinMeetFailed(anyRTCId, nCode, strReason);
             }
         }
 
         @Override
         public void OnRtcLeaveMeet(int nCode) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCLeaveMeet(nCode);
             }
         }
 
         @Override
         public void OnRtcConnectionLost() {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCConnectionLost();
             }
         }
 
         @Override
         public void OnRtcOpenVideoRender(String peerId, String publishId, String userId, String userData) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 if (publishId.startsWith("X100")) {
                     arMeetEvent.onRTCOpenScreenRender(peerId, publishId, userId, userData);
                 } else {
@@ -894,7 +905,7 @@ public class ARMeetKit {
 
         @Override
         public void OnRtcCloseVideoRender(String peerId, String publishId, String userId) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 if (publishId.startsWith("X100")) {
                     arMeetEvent.onRTCCloseScreenRender(peerId, publishId, userId);
                 } else {
@@ -919,21 +930,21 @@ public class ARMeetKit {
 
         @Override
         public void OnRtcUserCome(String peerId, String publishId, String userId, String userData) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRtcUserCome(peerId, publishId, userId, userData);
             }
         }
 
         @Override
         public void OnRtcUserOut(String peerId, String publishId, String userId) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRtcUserOut(peerId, publishId, userId);
             }
         }
 
         @Override
         public void OnRtcAVStatus(String peerId, boolean bAudio, boolean bVideo) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 if (peerId.equals("RTCMainParticipanter")) {
                     arMeetEvent.onRTCLocalAVStatus(bAudio, bVideo);
                 } else {
@@ -948,14 +959,14 @@ public class ARMeetKit {
                 if (peerId.equals("RtcPublisher")) {
                     arMeetEvent.onRTCLocalAudioActive(nLevel, nShowtime);
                 } else {
-                    arMeetEvent.onRTCRemoteAudioActive(peerId,userId, nLevel, nShowtime);
+                    arMeetEvent.onRTCRemoteAudioActive(peerId, userId, nLevel, nShowtime);
                 }
             }
         }
 
         @Override
         public void OnRtcNetworkStatus(String peerId, String userId, int nNetSpeed, int nPacketLost) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 ARNetQuality netQuality = null;
                 if (nPacketLost <= 1) {
                     netQuality = ARNetQuality.ARNetQualityExcellent;
@@ -971,70 +982,70 @@ public class ARMeetKit {
                 if (peerId.equals("RtcPublisher")) {
                     arMeetEvent.onRTCLocalNetworkStatus(nNetSpeed, nPacketLost, netQuality);
                 } else {
-                    arMeetEvent.onRTCRemoteNetworkStatus(peerId,userId, nNetSpeed, nPacketLost, netQuality);
+                    arMeetEvent.onRTCRemoteNetworkStatus(peerId, userId, nNetSpeed, nPacketLost, netQuality);
                 }
             }
         }
 
         @Override
         public void OnRtcUserMessage(String peerId, String userName, String headUrl, String content) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCUserMessage(peerId, userName, headUrl, content);
             }
         }
 
         @Override
         public void OnRtcSetUserShareEnableResult(boolean bSuccess) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCShareEnable(bSuccess);
             }
         }
 
         @Override
         public void OnRtcUserShareOpen(int type, String shareInfo, String userId, String userData) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCShareOpen(type, shareInfo, userId, userData);
             }
         }
 
         @Override
         public void OnRtcUserShareClose() {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCShareClose();
             }
         }
 
         @Override
         public void OnRtcHosterOnline(String peerId, String userId, String userData) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCHosterOnline(peerId, userId, userData);
             }
         }
 
         @Override
         public void OnRtcHosterOffline(String peerId) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCHosterOffline(peerId);
             }
         }
 
         @Override
         public void OnRtcTalkOnlyOn(String peerId, String userId, String userData) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCTalkOnlyOn(peerId, userId, userData);
             }
         }
 
         @Override
         public void OnRtcTalkOnlyOff(String peerId) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCTalkOnlyOff(peerId);
             }
         }
 
         @Override
         public void OnRtcZoomPageInfo(int nZoomMode, int nAllPages, int nCurPage, int nAllRender, int nScrnBeginIdx, int nNum) {
-            if (arMeetEvent!=null) {
+            if (arMeetEvent != null) {
                 arMeetEvent.onRTCZoomPageInfo(ARMeetZoomMode.values()[nZoomMode], nAllPages, nCurPage, nAllRender, nScrnBeginIdx, nNum);
             }
         }
@@ -1042,6 +1053,7 @@ public class ARMeetKit {
 
     /**
      * 获取UVC Camera的采集数据
+     *
      * @return
      */
     public long getAnyrtcUvcCallabck() {
@@ -1051,23 +1063,33 @@ public class ARMeetKit {
 
     /**
      * UVC相机数据与RTC对接
+     *
      * @param usbCamera usb相机
      * @return
      */
-    public int setUvcVideoCapturer(final Object usbCamera){
+    public int setUvcVideoCapturer(final Object usbCamera) {
         final Exchanger<Integer> result = new Exchanger<Integer>();
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                if(mVideoCapturer == null) {
-                    mCameraId = 0;
-                    nativeSetUvcVideoCapturer(usbCamera, "");
-                    LooperExecutor.exchange(result, 0);
-                }
+                nativeSetUvcVideoCapturer(usbCamera, "");
+                LooperExecutor.exchange(result, 0);
             }
         });
         return LooperExecutor.exchange(result, 1);
     }
+
+//    public int setUvcExVideoCapturer(final Object usbCamera) {
+//        final Exchanger<Integer> result = new Exchanger();
+//        this.mExecutor.execute(new Runnable() {
+//            public void run() {
+//               nativeSetUvcVideoCapturer(usbCamera, "");
+//              LooperExecutor.exchange(result, 0);
+//            }
+//        });
+//        return LooperExecutor.exchange(result, 1);
+//    }
+
 
     /**
      * Jni interface
@@ -1113,9 +1135,9 @@ public class ARMeetKit {
 
     private native void nativeSetYUV420PData(byte[] p_rgb, int width, int height);
 
-    private native void nativeSetVideoYUV420PData(byte[] y, int stride_y, byte[]  u, int stride_u, byte[]  v, int stride_v, int width, int height);
+    private native void nativeSetVideoYUV420PData(byte[] y, int stride_y, byte[] u, int stride_u, byte[] v, int stride_v, int width, int height);
 
-    private native void nativeSetVideoCapturer(byte[]  p_rgb, int width, int height);
+    private native void nativeSetVideoCapturer(byte[] p_rgb, int width, int height);
 
     private native void nativeSetVideoSize(int nWidth, int nHeight, int nBitrate);
 

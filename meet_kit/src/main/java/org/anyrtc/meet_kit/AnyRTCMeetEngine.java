@@ -216,12 +216,13 @@ public class AnyRTCMeetEngine {
     protected String getDeviceInfo() {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("operatorName", NetworkUtils.getNetworkOperatorName());
-            jsonObject.put("devType", DeviceUtils.getModel());
-            jsonObject.put("networkType", NetworkUtils.getNetworkType().toString().replace("NETWORK_", ""));
-            jsonObject.put("osType", "Android");
-            jsonObject.put("sdkVer", getSdkVersion());
-            jsonObject.put("rtcVer", 60);
+            jsonObject.put("operatorName", NetworkUtils.getNetworkOperatorName()); //运营商名字，类似于中国移动，中国联通，这些运营商信息
+            jsonObject.put("devType", 0);//设备类型： 0/1/2/3/4:android/ios/web/wechat/pc
+            jsonObject.put("devName", DeviceUtils.getManufacturer() + "-" + DeviceUtils.getModel());//设备名字：MI9，H8类似这些
+            jsonObject.put("networkType", NetworkUtils.getNetworkType().toString().replace("NETWORK_", "")); //网络类型：2G/3G/4G/WIFI等
+            jsonObject.put("osType", "Android " + DeviceUtils.getSDKVersionName());//系统版本，类似Android 7.0这些版本信息
+            jsonObject.put("sdkVer", getSdkVersion());//SDK版本
+            jsonObject.put("rtcVer", 60);//服务版本：有了写上，没有了可以不写。
         } catch (JSONException e) {
             e.printStackTrace();
         }

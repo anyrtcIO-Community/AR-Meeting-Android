@@ -723,11 +723,8 @@ public class RTMeetKit {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                if(mVideoCapturer == null) {
-                    mCameraId = 0;
                     nativeSetUvcVideoCapturer(usbCamera, "");
                     LooperExecutor.exchange(result, 0);
-                }
             }
         });
         return LooperExecutor.exchange(result, 1);
