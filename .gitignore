@@ -10,4 +10,4 @@
 .externalNativeBuild
 .idea/caches/build_file_checksums.ser
 app/app-release.apk
-meet_kit/src/main/JniLibs/JniLibs.zip
+*.zip
