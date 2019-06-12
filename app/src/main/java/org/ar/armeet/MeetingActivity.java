@@ -78,7 +78,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         ARMeetOption anyRTCMeetOption = ARMeetEngine.Inst().getARMeetOption();
         //设置默认为前置摄像头
         anyRTCMeetOption.setDefaultFrontCamera(true);
-        anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile288x352);
+        anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile480x640);
         anyRTCMeetOption.setMeetType(ARMeetType.Normal);
         anyRTCMeetOption.setMediaType(ARVideoCommon.ARMediaType.Video);
         mMeetKit = new ARMeetKit(arMeetEvent);

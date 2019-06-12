@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     buildToolsVersion '27.0.3'
     defaultConfig {
-        applicationId "org.anyrtc.armeet"
+        applicationId "org.ar.armeet"
         minSdkVersion 16
         targetSdkVersion 28
         versionCode 1
