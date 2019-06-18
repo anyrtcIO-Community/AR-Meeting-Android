@@ -75,12 +75,12 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         mVideoView=new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(),this,false);
         mVideoView.setVideoViewLayout(false, Gravity.CENTER,LinearLayout.HORIZONTAL);
         //获取配置类
-        ARMeetOption anyRTCMeetOption = ARMeetEngine.Inst().getARMeetOption();
+        ARMeetOption option = ARMeetEngine.Inst().getARMeetOption();
         //设置默认为前置摄像头
-        anyRTCMeetOption.setDefaultFrontCamera(true);
-        anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile480x640);
-        anyRTCMeetOption.setMeetType(ARMeetType.Normal);
-        anyRTCMeetOption.setMediaType(ARVideoCommon.ARMediaType.Video);
+        option.setDefaultFrontCamera(true);
+        option.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile720x1280);
+        option.setMeetType(ARMeetType.Normal);
+        option.setMediaType(ARVideoCommon.ARMediaType.Video);
         mMeetKit = new ARMeetKit(arMeetEvent);
         VideoRenderer localVideoRender = mVideoView.openLocalVideoRender();
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
@@ -156,21 +156,21 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
 
     ARMeetEvent arMeetEvent = new ARMeetEvent() {
         @Override
-        public void onRTCJoinMeetOK(final String anyrtcId) {
+        public void onRTCJoinMeetOK(final String roomId) {
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCJoinMeetOK 加入房间成功 ID："+anyrtcId);
+                    logAdapter.addData("回调：onRTCJoinMeetOK 加入房间成功 ID："+roomId);
                 }
             });
         }
 
         @Override
-        public void onRTCJoinMeetFailed(final String anyrtcId, final int code, String reason) {
+        public void onRTCJoinMeetFailed(final String roomId, final int code, String reason) {
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCJoinMeetFailed 加入房间失败 ID："+anyrtcId);
+                    logAdapter.addData("回调：onRTCJoinMeetFailed 加入房间失败 ID："+roomId+"code:"+code);
                     if (code == 701) {
                         Toast.makeText(MeetingActivity.this,"会议人数已满",Toast.LENGTH_SHORT).show();
                         finishAnimActivity();
@@ -355,15 +355,14 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 public void run() {
                     logAdapter.addData("回调：onRTCShareEnable 分享通道开启关闭结果"+success);
                 }
-            });
-        }
+            });        }
 
         @Override
-        public void onRTCShareOpen(int type, final String shareInfo, String userId, String userData) {
+        public void onRTCShareOpen(final int type, final String shareInfo, String userId, String userData) {
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCShareOpen 分享通道开启 shareInfo:" +shareInfo);
+                    logAdapter.addData("回调：onRTCShareOpen 分享通道开启 shareInfo:" +shareInfo+"=========="+type);
                 }
             });
         }
