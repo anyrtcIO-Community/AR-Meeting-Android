@@ -1,5 +1,5 @@
 
-### AR-Meeting-Android SDK for Android
+### AR-Meet-Android SDK for Android
 ### 简介
 AR-Meeting-Android视频会议，基于ARMeetEngine SDK，支持视频、语音多人会议，适用于会议、培训、互动等多人移动会议。
 
@@ -9,7 +9,8 @@ AR-Meeting-Android视频会议，基于ARMeetEngine SDK，支持视频、语音�
 ##### 扫码下载
 ![image](https://www.pgyer.com/app/qrcode/eU0U)
 ##### [点击下载](https://www.pgyer.com/eU0U)
-##### [WEB在线体验](https://beyond.anyrtc.cc/demo/meeting)
+
+##### [WEB在线体验](https://demos.anyrtc.io/ar-meet/)
 
 ### SDK集成
 # > 方式一（推荐）[ ![Download](https://api.bintray.com/packages/dyncanyrtc/ar_dev/meet/images/download.svg) ](https://bintray.com/dyncanyrtc/ar_dev/meet/_latestVersion)
@@ -50,8 +51,8 @@ Android API 15+
 >如果您还未注册anyRTC开发者账号，请登录[anyRTC官网](http://www.anyrtc.io)注册及获取更多的帮助。
 
 ##### 替换开发者账号
-在[anyRTC官网](http://www.anyrtc.io)获取了开发者账号，AppID等信息后，替换DEMO中
-**DeveloperInfo**类中的开发者信息即可
+在[anyRTC官网](http://www.anyrtc.io)获取了应用ID,应用Token等信息后，替换DEMO中
+**DeveloperInfo**类中的信息即可
 
 ### 操作步骤
 
@@ -64,11 +65,11 @@ SDK集成，API介绍，详见官方完整文档：[点击查看](https://docs.a
 
 ### iOS版 视频会议
 
-[AR-Meeting-Ios](https://github.com/AnyRTC/anyRTC-Meeting-iOS)
+[AR-Meeting-iOS](https://github.com/AnyRTC/anyRTC-Meeting-iOS)
 
-### Web版anyRTC-Meeting视频会议在线体验
+### Web版 视频会议
 
-[AR-Meeting-Web](https://beyond.anyrtc.cc/demo/meeting)
+[AR-Meeting-Web](https://github.com/anyRTC/anyRTC-Meeting-Web)
 
 
 ### 支持的系统平台
