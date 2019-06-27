@@ -21,6 +21,7 @@ public class HwRender extends Thread implements SurfaceHolder.Callback{
     private long mCPPtr = 0;
     private boolean isRuning = false;
     private static final String H264_MIME = "video/avc";
+    private boolean isFirstFrame = true;
     /**
      * 1920,640x480
      */
@@ -140,6 +141,12 @@ public class HwRender extends Thread implements SurfaceHolder.Callback{
                                     }
                                     int outIndex = 0;
                                     while (outIndex >= 0) {
+                                        if (isFirstFrame) {
+                                            isFirstFrame = false;
+                                            if(null != mCameraEventsHandler) {
+                                                mCameraEventsHandler.onFirstFrameAvailable();
+                                            }
+                                        }
                                         outIndex = mDecoder.dequeueOutputBuffer(mInfo, 0);
                                         if (outIndex >= 0) {
                                             ByteBuffer decoderoutbuffer = mOutputBuffers[outIndex];

@@ -531,7 +531,7 @@ public class ARMeetKit {
      *
      * @param url 流媒体地址
      */
-    public int openRtspCap(final String url) {
+    public int openRtspCap(final String url){
         final Exchanger<Integer> result = new Exchanger<Integer>();
         mExecutor.execute(new Runnable() {
             @Override
@@ -1133,9 +1133,9 @@ public class ARMeetKit {
 
     private native void nativeSetExternalCameraCapturer(boolean enable, int type);
 
-    private native void nativeSetYUV420PData(byte[] p_rgb, int width, int height);
+    private native void nativeSetYUV420PData(byte[] p_yuv, int width, int height);
 
-    private native void nativeSetVideoYUV420PData(byte[] y, int stride_y, byte[] u, int stride_u, byte[] v, int stride_v, int width, int height);
+    private native void nativeSetVideoYUV420PData(byte[] y, int stride_y, byte[]  u, int stride_u, byte[]  v, int stride_v, int width, int height);
 
     private native void nativeSetVideoCapturer(byte[] p_rgb, int width, int height);
 
@@ -1150,6 +1150,10 @@ public class ARMeetKit {
     private native void nativeSetVideoProfileMode(int nVideoMode);
 
     private native void nativeSetVideoFpsProfile(int nFpsMode);
+
+    private native void nativeSetVideoExProfileMode(int nVideoMode);
+
+    private native void nativeSetVideoExFpsProfile(int nFpsMode);
 
     private native void nativeSetDriverMode(boolean enable);
 

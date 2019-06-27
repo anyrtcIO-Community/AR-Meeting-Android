@@ -723,8 +723,11 @@ public class RTMeetKit {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
+                if(mVideoCapturer == null) {
+                    mCameraId = 0;
                     nativeSetUvcVideoCapturer(usbCamera, "");
                     LooperExecutor.exchange(result, 0);
+                }
             }
         });
         return LooperExecutor.exchange(result, 1);
@@ -959,6 +962,10 @@ public class RTMeetKit {
     private native void nativeSetVideoProfileMode(int nVideoMode);
 
     private native void nativeSetVideoFpsProfile(int nFpsMode);
+
+    private native void nativeSetVideoExProfileMode(int nVideoMode);
+
+    private native void nativeSetVideoExFpsProfile(int nFpsMode);
 
     private native void nativeSetDriverMode(boolean bEnable);
 
