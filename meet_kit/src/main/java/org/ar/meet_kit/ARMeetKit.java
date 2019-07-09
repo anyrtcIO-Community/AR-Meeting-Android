@@ -662,13 +662,13 @@ public class ARMeetKit {
 
     /**
      * 外部yuv数据, 使用此接口时， 不能使用setLocalVideoCapturer接口
-     *
      * @param p_yuv
      * @param width
      * @param height
+     * @return -1:分辨率或者塞流数据类型不正确，0塞流成功
      */
-    public void setVideoYUV420PData(byte[] p_yuv, int width, int height) {
-        nativeSetYUV420PData(p_yuv, width, height);
+    public int setVideoYUV420PData(byte[] p_yuv, int width, int height) {
+        return nativeSetYUV420PData(p_yuv, width, height);
     }
 
     /**
@@ -1133,9 +1133,9 @@ public class ARMeetKit {
 
     private native void nativeSetExternalCameraCapturer(boolean enable, int type);
 
-    private native void nativeSetYUV420PData(byte[] p_yuv, int width, int height);
+    private native int nativeSetYUV420PData(byte[] p_yuv, int width, int height);
 
-    private native void nativeSetVideoYUV420PData(byte[] y, int stride_y, byte[]  u, int stride_u, byte[]  v, int stride_v, int width, int height);
+    private native int nativeSetVideoYUV420PData(byte[] y, int stride_y, byte[]  u, int stride_u, byte[]  v, int stride_v, int width, int height);
 
     private native void nativeSetVideoCapturer(byte[] p_rgb, int width, int height);
 

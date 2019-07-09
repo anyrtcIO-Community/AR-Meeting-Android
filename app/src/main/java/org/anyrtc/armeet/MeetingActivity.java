@@ -84,7 +84,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         VideoRenderer localVideoRender = mVideoView.openLocalVideoRender();
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
         mMeetKit.joinRTCByToken("",meetId,userId,getUserInfo());
-
     }
 
     public String getUserInfo() {
