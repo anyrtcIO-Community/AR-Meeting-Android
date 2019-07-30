@@ -63,6 +63,7 @@ public class ARMeetEngine {
         return eglBase;
     }
 
+
     public  void disableHWEncode() {
         MediaCodecVideoEncoder.disableVp8HwCodec();
         MediaCodecVideoEncoder.disableVp9HwCodec();

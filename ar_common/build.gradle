@@ -1,17 +1,18 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-version = "3.0.5"
 apply plugin: 'maven'
+version = "3.0.2"
+
 android {
-    compileSdkVersion 26
+    compileSdkVersion 25
     buildToolsVersion '27.0.3'
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 26
-        versionCode 29
-        versionName "3.0.5"
+        targetSdkVersion 25
+        versionCode 13
+        versionName "3.0.2"
     }
     buildTypes {
         release {
@@ -21,9 +22,41 @@ android {
     }
 }
 
+//解决 gradlew 构建错误: 编码 GBK的不可映射字符
+tasks.withType(Javadoc) {
+//    options.encoding = "UTF-8"
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+}
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+uploadArchives{
+    repositories.mavenDeployer{
+        repository(url:uri('D:\\liuxiaozhong\\LocalMaven'))
+        pom.groupId = 'org.ar'
+        pom.artifactId = 'ar_common'
+        pom.version = '3.0.0'
+    }
+}
+
 //方法1
 def siteUrl = 'https://www.anyrtc.io'      // 项目的主页   这个是说明，可随便填
-def gitUrl = 'https://github.com/AnyRTC/anyRTC-Meeting-Android'      // Git仓库的url  这个是说明，可随便填
+def gitUrl = 'https://www.anyrtc.io'      // Git仓库的url  这个是说明，可随便填
 group = "org.ar"    // 这里是groupId ,必须填写  一般填你唯一的包名
 
 install {
@@ -33,7 +66,7 @@ install {
             project {
                 packaging 'aar'
                 // Add your description here
-                name 'anyrtc会议sdk'     //项目描述
+                name 'anyrtc公共sdk'     //项目描述
                 url siteUrl
                 // Set your license
                 licenses {
@@ -58,36 +91,6 @@ install {
         }
     }
 }
-uploadArchives{
-    repositories.mavenDeployer{
-        repository(url:uri('D:\\liuxiaozhong\\LocalMaven'))
-        pom.groupId = 'org.ar'
-        pom.artifactId = 'meet_kit'
-        pom.version = '4.0.1'
-    }
-}
-//解决 gradlew 构建错误: 编码 GBK的不可映射字符
-tasks.withType(Javadoc) {
-//    options.encoding = "UTF-8"
-    options.addStringOption('Xdoclint:none', '-quiet')
-    options.addStringOption('encoding', 'UTF-8')
-}
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
@@ -97,30 +100,15 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = "ar_dev"
-        name = "meet"    //发布到JCenter上的项目名字，必须填写
+        name = "common"    //发布到JCenter上的项目名字，必须填写
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]
         publish = true
     }
 }
-
-//这段代码一会给你们解释哈
-//javadoc {
-//    options{
-//        encoding "UTF-8"
-//        charSet 'UTF-8'
-//        author true
-//        version true
-//        links "http://docs.oracle.com/javase/7/docs/api"
-//    }
-//}
-
-apply from: 'fat-aar.gradle'
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:26+'
-//    embedded project(path: ':anyrtc_common')
-    compile project(':ar_common')
-//    compile 'org.ar:ar_common:3.0.2'
+
+    compile "com.android.support:support-core-utils:25.3.1"
 }
