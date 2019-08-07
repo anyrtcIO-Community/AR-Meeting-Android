@@ -38,7 +38,7 @@ import static android.view.View.VISIBLE;
 /**
  * Created by liuxiaozhong on 2019/1/11.
  */
-public class ARVideoView  {
+public class ARVideoView implements View.OnTouchListener {
 
     public RelativeLayout rlVideoGroup;//所有视频的容器布局
 
@@ -76,11 +76,52 @@ public class ARVideoView  {
         mRemoteRenderList = new LinkedHashMap<>();
         mScreenWidth = ScreenUtils.getScreenWidth(mContext);
         mScreenHeight = ScreenUtils.getScreenHeight(mContext) - ScreenUtils.getStatusHeight(mContext);
+        rlVideoGroup.setOnTouchListener(this);
     }
 
 
     public void setBottomHeight(int bottomHeight) {
        this.bottomHeight= (int) (((float)bottomHeight/mScreenHeight)*100f);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            int startX = (int) event.getX();
+            int startY = (int) event.getY();
+            if (LocalVideoRender.Hited(startX, startY)) {
+                return true;
+            } else {
+                Iterator<Map.Entry<String, VideoView>> iter = mRemoteRenderList.entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<String, VideoView> entry = iter.next();
+                    String peerId = entry.getKey();
+                    VideoView render = entry.getValue();
+                    if (render.Hited(startX, startY)) {
+                        return true;
+                    }
+                }
+            }
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            int startX = (int) event.getX();
+            int startY = (int) event.getY();
+            if (LocalVideoRender.Hited(startX, startY)) {
+                SwitchViewToFullscreen(LocalVideoRender, GetFullScreen());
+                return true;
+            } else {
+                Iterator<Map.Entry<String, VideoView>> iter = mRemoteRenderList.entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<String, VideoView> entry = iter.next();
+                    String peerId = entry.getKey();
+                    VideoView render = entry.getValue();
+                    if (render.Hited(startX, startY)) {
+                        SwitchViewToFullscreen(render, GetFullScreen());
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -138,8 +179,8 @@ public class ARVideoView  {
             if (!isFullScreen()) {
                 int left = x * mScreenWidth / 100;
                 int right = (x + w) * mScreenWidth / 100;
-                int top =( y+h) * (mScreenHeight / 100);
-                int bottom = (y+h+w) * (mScreenHeight/100);
+                int top = y *mLayout.getHeight() / 100;
+                int bottom = (y + h ) * mLayout.getHeight() / 100;
                 if ((px >= left && px <= right) && (py >= top && py <= bottom)) {
                     return true;
                 }
@@ -242,17 +283,6 @@ public class ARVideoView  {
         LocalVideoRender.mLayout.setPosition(
                 LocalVideoRender.x, LocalVideoRender.y, LocalVideoRender.w, LocalVideoRender.h);
         LocalVideoRender.surfaceViewRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
-        LocalVideoRender.surfaceViewRenderer.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (LocalVideoRender.isFullScreen()){
-                    return false;
-                }else {
-                    SwitchViewToFullscreen(LocalVideoRender,GetFullScreen());
-                }
-                return false;
-            }
-        });
         LocalVideoRender.flLoading.setVisibility(VISIBLE);
 
 
@@ -396,19 +426,7 @@ public class ARVideoView  {
             }, 1f);
             remoteVideoRender.videoRenderer = new VideoRenderer(remoteVideoRender.surfaceViewRenderer);
 
-            final VideoView finalRemoteVideoRender1 = remoteVideoRender;
-            remoteVideoRender.surfaceViewRenderer.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (finalRemoteVideoRender1.isFullScreen()){
-                        return false;
-                    }else {
-                        SwitchViewToFullscreen(finalRemoteVideoRender1,GetFullScreen());
-                    }
-                    return false;
-                }
-            });
-            mRemoteRenderList.put(videoId, finalRemoteVideoRender1);
+            mRemoteRenderList.put(videoId, remoteVideoRender);
             if (isSameSize) {
                 updateVideoViewSameSize();
             } else {

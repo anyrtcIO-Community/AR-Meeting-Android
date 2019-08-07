@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".MeetingActivity"
-            android:screenOrientation="landscape"></activity>
+         ></activity>
     </application>
 
 </manifest>
