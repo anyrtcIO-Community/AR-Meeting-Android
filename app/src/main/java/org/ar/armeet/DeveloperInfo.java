@@ -9,11 +9,11 @@ public class DeveloperInfo {
     /**
      * anyRTC 平台的appid
      */
-    public final static String APPID = "";
+    public final static String APPID = "anyrtc8Mqhs4MG6qPb";
     /**
      * anyRTC 平台的apptoken
      */
-    public final static String APPTOKEN = "";
+    public final static String APPTOKEN = "2cd338bf0d2a38093d9733525c98f7d4";
 
 
 }

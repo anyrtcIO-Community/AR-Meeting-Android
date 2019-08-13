@@ -28,19 +28,20 @@ import org.webrtc.VideoRenderer;
 public class MeetingActivity extends BaseActivity implements View.OnClickListener {
 
     View space;
-    RelativeLayout rlVideo,rl_log_layout;
-    ImageButton ibCamera, ibLog,ibtn_close_log;
-    Button ibVideo,ibAudio,ibHangUp;
+    RelativeLayout rlVideo, rl_log_layout;
+    ImageButton ibCamera, ibLog, ibtn_close_log;
+    Button ibVideo, ibAudio, ibHangUp;
     RecyclerView rvLog;
     TextView tvRoomId;
     LinearLayout ll_bottom_layout;
     private LogAdapter logAdapter;
     private ARVideoView mVideoView;
     private ARMeetKit mMeetKit;
-    private String meetId="";
-    private String userId=(int)((Math.random()*9+1)*100000)+"";
-//    private String userId="654321";
+    private String meetId = "";
+    private String userId = (int) ((Math.random() * 9 + 1) * 100000) + "";
+    //    private String userId="654321";
     AR_AudioManager arAudioManager;
+
     @Override
     public int getLayoutId() {
         return R.layout.activity_meeting;
@@ -50,13 +51,13 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
     public void initView(Bundle savedInstanceState) {
         space = findViewById(R.id.view_space);
         mImmersionBar.titleBar(space).init();
-        tvRoomId=findViewById(R.id.tv_room_id);
+        tvRoomId = findViewById(R.id.tv_room_id);
         rvLog = findViewById(R.id.rv_log);
         rlVideo = findViewById(R.id.rl_video);
         ibCamera = findViewById(R.id.btn_camare);
-        rl_log_layout=findViewById(R.id.rl_log_layout);
-        ibtn_close_log=findViewById(R.id.ibtn_close_log);
-        ll_bottom_layout=findViewById(R.id.ll_bottom_layout);
+        rl_log_layout = findViewById(R.id.rl_log_layout);
+        ibtn_close_log = findViewById(R.id.ibtn_close_log);
+        ll_bottom_layout = findViewById(R.id.ll_bottom_layout);
         ibVideo = findViewById(R.id.ib_video);
         ibAudio = findViewById(R.id.ib_audio);
         ibLog = findViewById(R.id.btn_log);
@@ -71,24 +72,30 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         rvLog.setLayoutManager(new LinearLayoutManager(this));
         logAdapter.bindToRecyclerView(rvLog);
         meetId = getIntent().getStringExtra("meet_id");
-        tvRoomId.setText("房间ID："+meetId);
-        mVideoView=new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(),this,false);
-        mVideoView.setVideoViewLayout(false, Gravity.CENTER,LinearLayout.HORIZONTAL);
+        tvRoomId.setText("房间ID：" + meetId);
+        mVideoView = new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(), this, false);
+        mVideoView.setVideoViewLayout(false, Gravity.CENTER, LinearLayout.HORIZONTAL);
         //获取配置类
         ARMeetOption option = ARMeetEngine.Inst().getARMeetOption();
         //设置默认为前置摄像头
         option.setDefaultFrontCamera(true);
         //设置视频分辨率
         option.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile480x640);
+        option.setVideoFps(ARVideoCommon.ARVideoFrameRate.ARVideoFrameRateFps10);
         //设置会议类型
         option.setMeetType(ARMeetType.Normal);
-        //设置会议媒体类型
+
         option.setMediaType(ARVideoCommon.ARMediaType.Video);
         mMeetKit = new ARMeetKit(arMeetEvent);
+        mMeetKit.setFrontCameraMirrorEnable(true);
+        mMeetKit.setNetworkStatus(true);
         VideoRenderer localVideoRender = mVideoView.openLocalVideoRender();
+//  设置码率
+        mMeetKit.setLocalVideoBitrate(100);
+
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
-        mMeetKit.joinRTCByToken("",meetId,userId,getUserInfo());
-        arAudioManager=AR_AudioManager.create(this, new Runnable() {
+        mMeetKit.joinRTCByToken("", meetId, userId, getUserInfo());
+        arAudioManager = AR_AudioManager.create(this, new Runnable() {
             @Override
             public void run() {
 
@@ -109,9 +116,10 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         }
         return jsonObject.toString();
     }
+
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.btn_camare:
                 mMeetKit.switchCamera();//翻转摄像头
                 if (ibCamera.isSelected()) {
@@ -129,7 +137,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                     ibAudio.setSelected(true);
                     mMeetKit.setLocalAudioEnable(false);//禁止本地音频传输
                 }
-                logAdapter.addData("方法："+(ibAudio.isSelected() ? "本地音频传输关闭" : "本地音频传输开启"));
+                logAdapter.addData("方法：" + (ibAudio.isSelected() ? "本地音频传输关闭" : "本地音频传输开启"));
                 break;
             case R.id.ib_video:
                 if (ibVideo.isSelected()) {
@@ -139,10 +147,10 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                     ibVideo.setSelected(true);
                     mMeetKit.setLocalVideoEnable(false);//禁止本地视频传输
                 }
-                logAdapter.addData("方法："+(ibVideo.isSelected() ? "本地视频传输关闭" : "本地视频传输开启"));
+                logAdapter.addData("方法：" + (ibVideo.isSelected() ? "本地视频传输关闭" : "本地视频传输开启"));
                 break;
             case R.id.btn_log:
-                    rl_log_layout.setVisibility(View.VISIBLE);
+                rl_log_layout.setVisibility(View.VISIBLE);
                 break;
             case R.id.ibtn_close_log:
                 rl_log_layout.setVisibility(View.GONE);
@@ -163,19 +171,19 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCJoinMeetOK 加入房间成功 ID："+roomId);
+                    logAdapter.addData("回调：onRTCJoinMeetOK 加入房间成功 ID：" + roomId);
                 }
             });
         }
 
         @Override
-        public void onRTCJoinMeetFailed(final String roomId, final int code, String reason) {
+        public void onRTCJoinMeetFailed(final String roomId, final int code, final String reason) {
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCJoinMeetFailed 加入房间失败 ID："+roomId+"code:"+code);
+                    logAdapter.addData("回调：onRTCJoinMeetFailed 加入房间失败 ID：" + roomId + "code:" + code+"reason:"+reason);
                     if (code == 701) {
-                        Toast.makeText(MeetingActivity.this,"会议人数已满",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MeetingActivity.this, "会议人数已满", Toast.LENGTH_SHORT).show();
                         finishAnimActivity();
                     }
                 }
@@ -187,7 +195,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCLeaveMeet 离开房间 code："+code);
+                    logAdapter.addData("回调：onRTCLeaveMeet 离开房间 code：" + code);
                 }
             });
         }
@@ -197,7 +205,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCOpenRemoteVideoRender 远程视频流接入即将渲染显示 publishId："+publishId+"\n peerId:"+peerId+"user:"+userId);
+                    logAdapter.addData("回调：onRTCOpenRemoteVideoRender 远程视频流接入即将渲染显示 publishId：" + publishId + "\n peerId:" + peerId + "user:" + userId);
 
                     final VideoRenderer render = mVideoView.openRemoteVideoRender(publishId);
                     if (null != render) {
@@ -212,9 +220,9 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCCloseRemoteVideoRender 远程视频流关闭 publishId："+publishId+"\n peerId:"+peerId+"user:"+userId);
+                    logAdapter.addData("回调：onRTCCloseRemoteVideoRender 远程视频流关闭 publishId：" + publishId + "\n peerId:" + peerId + "user:" + userId);
 
-                    if (mMeetKit!=null&&mVideoView!=null) {
+                    if (mMeetKit != null && mVideoView != null) {
                         mVideoView.removeRemoteRender(publishId);
                         mMeetKit.setRemoteVideoRender(publishId, 0);
                     }
@@ -228,7 +236,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCOpenScreenRender 屏幕共享流接入即将渲染显示 publishId："+publishId+"\n peerId:"+peerId+"user:"+userId);
+                    logAdapter.addData("回调：onRTCOpenScreenRender 屏幕共享流接入即将渲染显示 publishId：" + publishId + "\n peerId:" + peerId + "user:" + userId);
                     final VideoRenderer render = mVideoView.openRemoteVideoRender("ScreenShare");
                     if (null != render) {
                         mMeetKit.setRemoteVideoRender(publishId, render.GetRenderPointer());
@@ -242,8 +250,8 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCCloseScreenRender 屏幕共享流关闭 publishId："+publishId+"\n peerId:"+peerId+"user:"+userId);
-                    if (mMeetKit!=null&&mVideoView!=null) {
+                    logAdapter.addData("回调：onRTCCloseScreenRender 屏幕共享流关闭 publishId：" + publishId + "\n peerId:" + peerId + "user:" + userId);
+                    if (mMeetKit != null && mVideoView != null) {
                         mVideoView.removeRemoteRender("ScreenShare");
                         mMeetKit.setRemoteVideoRender(publishId, 0);
                     }
@@ -257,7 +265,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRtcOpenRemoteAudioTrack 远程音频流接入 peerId:"+peerId+"user:"+userId);
+                    logAdapter.addData("回调：onRtcOpenRemoteAudioTrack 远程音频流接入 peerId:" + peerId + "user:" + userId);
                 }
             });
         }
@@ -267,7 +275,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRtcOpenRemoteAudioTrack 远程音频流离开 peerId:"+peerId+"user:"+userId);
+                    logAdapter.addData("回调：onRtcOpenRemoteAudioTrack 远程音频流离开 peerId:" + peerId + "user:" + userId);
                 }
             });
         }
@@ -277,7 +285,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCRemoteAVStatus 远程用户音视频状态  peerId:"+peerId+"bAudio:"+bAudio+ "bVideo:"+bVideo);
+                    logAdapter.addData("回调：onRTCRemoteAVStatus 远程用户音视频状态  peerId:" + peerId + "bAudio:" + bAudio + "bVideo:" + bVideo);
                 }
             });
         }
@@ -287,7 +295,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCLocalAVStatus 本地音视频状态 bAudio:"+bAudio+ "bVideo:"+bVideo);
+                    logAdapter.addData("回调：onRTCLocalAVStatus 本地音视频状态 bAudio:" + bAudio + "bVideo:" + bVideo);
                 }
             });
         }
@@ -312,11 +320,15 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         }
 
         @Override
-        public void onRTCRemoteNetworkStatus(final String peerId, String userId, final int nNetSpeed, final int nPacketLost, final ARNetQuality netQuality) {
+        public void onRTCRemoteNetworkStatus(final String publishId, String userId, final int nNetSpeed, final int nPacketLost, final ARNetQuality netQuality) {
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCRemoteNetworkStatus 远程用户网络状态  peerId:"+peerId +"\nnNetSpeed:"+nNetSpeed+"nPacketLost:"+nPacketLost+"ARNetQuality:"+netQuality.toString());
+                    logAdapter.addData("回调：onRTCRemoteNetworkStatus 远程用户网络状态  publishId:" + publishId + "\nnNetSpeed:" + nNetSpeed + "nPacketLost:" + nPacketLost + "ARNetQuality:" + netQuality.toString());
+                    if (mVideoView != null) {
+                        mVideoView.updateRemoteNetStatus(publishId, String.valueOf(nNetSpeed / 1024 * 8));
+                    }
+
                 }
             });
         }
@@ -326,7 +338,10 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCLocalNetworkStatus 本地网络状态 nNetSpeed:"+nNetSpeed+"nPacketLost:"+nPacketLost+"ARNetQuality:"+netQuality.toString());
+                    logAdapter.addData("回调：onRTCLocalNetworkStatus 本地网络状态 nNetSpeed:" + nNetSpeed + "nPacketLost:" + nPacketLost + "ARNetQuality:" + netQuality.toString());
+                    if (mVideoView != null) {
+                        mVideoView.updateLocalNetStatus(String.valueOf(nNetSpeed / 1024 * 8));
+                    }
                 }
             });
         }
@@ -346,7 +361,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCUserMessage 收到消息 "+"\n姓名："+userName+"\n消息："+message);
+                    logAdapter.addData("回调：onRTCUserMessage 收到消息 " + "\n姓名：" + userName + "\n消息：" + message);
                 }
             });
         }
@@ -356,16 +371,17 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCShareEnable 分享通道开启关闭结果"+success);
+                    logAdapter.addData("回调：onRTCShareEnable 分享通道开启关闭结果" + success);
                 }
-            });        }
+            });
+        }
 
         @Override
         public void onRTCShareOpen(final int type, final String shareInfo, String userId, String userData) {
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCShareOpen 分享通道开启 shareInfo:" +shareInfo+"=========="+type);
+                    logAdapter.addData("回调：onRTCShareOpen 分享通道开启 shareInfo:" + shareInfo + "==========" + type);
                 }
             });
         }
@@ -385,7 +401,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCHosterOnline 主持人上线 peerId:"+peerId);
+                    logAdapter.addData("回调：onRTCHosterOnline 主持人上线 peerId:" + peerId);
                 }
             });
         }
@@ -395,7 +411,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCHosterOnline 主持人下线 peerId:"+peerId);
+                    logAdapter.addData("回调：onRTCHosterOnline 主持人下线 peerId:" + peerId);
                 }
             });
         }
@@ -425,7 +441,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRtcUserCome 有人进入 peerId:"+peerId);
+                    logAdapter.addData("回调：onRtcUserCome 有人进入 peerId:" + peerId);
                 }
             });
         }
@@ -435,7 +451,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRtcUserOut 有人退出 peerId:"+peerId);
+                    logAdapter.addData("回调：onRtcUserOut 有人退出 peerId:" + peerId);
                 }
             });
         }
@@ -454,9 +470,9 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (arAudioManager!=null){
+        if (arAudioManager != null) {
             arAudioManager.close();
-            arAudioManager=null;
+            arAudioManager = null;
         }
     }
 
@@ -468,6 +484,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             public void run() {
                 mVideoView.setBottomHeight(ll_bottom_layout.getMeasuredHeight());
             }
-        },100);
+        }, 100);
     }
 }

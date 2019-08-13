@@ -8,6 +8,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+
+
+    <TextView
+        android:id="@+id/tv_net"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FF8C00"
+        android:textStyle="bold"
+        android:layout_margin="4dp"
+        android:textSize="14sp"
+        android:text="0Kbps"/>
+
     <FrameLayout
         android:id="@+id/fl_video_loading"
         android:layout_width="match_parent"
