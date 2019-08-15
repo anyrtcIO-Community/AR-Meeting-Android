@@ -196,6 +196,30 @@ public class ARMeetKit {
             }
         });
     }
+	
+    /**
+     * 设置视频编码器
+     *
+     * @param strCodec 视频编码格式（H264,VP8,VP9等编码器） 必须大写 比如 H264 VP8
+     * @return true：设置成功；false：设置失败
+     */
+    public boolean setVideoCodec(final String strCodec) {
+        final Exchanger<Boolean> result = new Exchanger<Boolean>();
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                boolean ret = false;
+                if (null == strCodec || strCodec.equals("")) {
+                    ret = false;
+                } else {
+                    nativeSetVideoCodec(strCodec);
+                    ret = true;
+                }
+                LooperExecutor.exchange(result, ret);
+            }
+        });
+        return LooperExecutor.exchange(result, false);
+    }
 
     /**
      * 设置验证token
@@ -1322,6 +1346,8 @@ public class ARMeetKit {
      * Jni interface
      */
     private native long nativeCreate(Object obj);
+
+    private native void nativeSetVideoCodec(String strCodec);
 
     /**
      * 设置会议模式
