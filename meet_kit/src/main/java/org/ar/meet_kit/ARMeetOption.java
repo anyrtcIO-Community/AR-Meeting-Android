@@ -12,15 +12,15 @@ public class ARMeetOption {
      */
     private boolean isDefaultFrontCamera = true;
     /**
-     * anyRTC屏幕方向；默认：竖屏
+     * 屏幕方向；默认：竖屏
      */
     private ARVideoCommon.ARVideoOrientation mScreenOriention = ARVideoCommon.ARVideoOrientation.Portrait;
     /**
-     * anyRTC视频清晰标准；默认：标清（AnyRTC_Video_SD）
+     * 视频清晰标准；默认：标清（Video_SD）
      */
     private ARVideoCommon.ARVideoProfile videoProfile = ARVideoCommon.ARVideoProfile.ARVideoProfile360x640;
     /**
-     * anyRTC视频帧率；默认：15帧（ARVideoFrameRateFps15）
+     * 视频帧率；默认：15帧（ARVideoFrameRateFps15）
      */
     private ARVideoCommon.ARVideoFrameRate videoFps = ARVideoCommon.ARVideoFrameRate.ARVideoFrameRateFps15;
 

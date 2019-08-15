@@ -1,6 +1,7 @@
 package org.ar.meet_kit;
 
 import android.content.Context;
+import android.support.v4.BuildConfig;
 
 import org.ar.common.enums.ARLogLevel;
 import org.ar.common.utils.DeviceUtils;
@@ -29,7 +30,6 @@ public class ARMeetEngine {
     private final EglBase eglBase;
     private Context context;
     private String developerId, appId, appKey, appToken;
-    private String strSvrAddr = "cloud.anyrtc.io";
     private ARMeetOption arMeetOption = new ARMeetOption();
 
     private static class SingletonHolder {
@@ -63,14 +63,13 @@ public class ARMeetEngine {
         return eglBase;
     }
 
-
-    public  void disableHWEncode() {
+    public void disableHWEncode() {
         MediaCodecVideoEncoder.disableVp8HwCodec();
         MediaCodecVideoEncoder.disableVp9HwCodec();
         MediaCodecVideoEncoder.disableH264HwCodec();
     }
 
-    public  void disableHWDecode() {
+    public void disableHWDecode() {
         MediaCodecVideoDecoder.disableVp8HwCodec();
         MediaCodecVideoDecoder.disableVp9HwCodec();
         MediaCodecVideoDecoder.disableH264HwCodec();
@@ -114,7 +113,6 @@ public class ARMeetEngine {
     }
 
     public void configServerForPriCloud(final String strAddr, final int nPort) {
-        strSvrAddr = strAddr;
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -157,6 +155,19 @@ public class ARMeetEngine {
     }
 
     /**
+     * 是否打开回音消除
+     *
+     * @param enable
+     */
+    public void setForceAecEnable(final boolean enable) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeForceSetAecEnable(enable);
+            }
+        });
+    }
+    /**
      * 设置日志显示级别
      *
      * @param logLevel 日志显示级别
@@ -181,6 +192,8 @@ public class ARMeetEngine {
     private static native void nativeInitEngineWithAppInfo(String strAppId, String strToken);
 
     private static native void nativeConfigServerForPriCloud(String strAddr, int nPort);
+
+    private static native void nativeForceSetAecEnable(boolean enable);
 
     private static native void nativeSetLogLevel(int logLevel);
 }

@@ -263,6 +263,16 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         }
 
         @Override
+        public void onRTCLocalAudioPcmData(String peerId, byte[] data, int nLen, int nSampleHz, int nChannel) {
+
+        }
+
+        @Override
+        public void onRTCRemoteAudioPcmData(String peerId, byte[] data, int nLen, int nSampleHz, int nChannel) {
+
+        }
+
+        @Override
         public void onRTCRemoteAVStatus(final String peerId, final boolean bAudio, final boolean bVideo) {
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override

@@ -5,7 +5,7 @@ import android.support.v4.content.PermissionChecker;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.anyrtc.meet_kit.RTMeetKit;
+import org.ar.common.enums.ARCaptureType;
 import org.ar.common.enums.ARNetQuality;
 import org.ar.common.enums.ARVideoCommon;
 import org.ar.common.utils.ARUtils;
@@ -38,7 +38,7 @@ public class ARMeetKit {
     private VideoCapturerAndroid mVideoCapturerEx;
     private boolean isFrontOpenMirrorEnable = false;
     private boolean isopenAudioCheck = true;
-    ARMeetEvent arMeetEvent;
+    private ARMeetEvent arMeetEvent;
 
     public ARMeetKit(final ARMeetEvent arMeetEvent) {
         ARUtils.assertIsTrue(arMeetEvent != null);
@@ -62,6 +62,7 @@ public class ARMeetKit {
                 nativeSetVideoProfileMode(ARMeetEngine.Inst().getARMeetOption().getVideoProfile().level);
                 nativeSetVideoFpsProfile(ARMeetEngine.Inst().getARMeetOption().getVideoFps().level);
                 nativeSetMeetMode(ARMeetEngine.Inst().getARMeetOption().getMeetType().type);
+                initCameraEngine();
             }
         });
     }
@@ -87,8 +88,62 @@ public class ARMeetKit {
                 nativeSetVideoProfileMode(ARMeetEngine.Inst().getARMeetOption().getVideoProfile().level);
                 nativeSetVideoFpsProfile(ARMeetEngine.Inst().getARMeetOption().getVideoFps().level);
                 nativeSetMeetMode(ARMeetEngine.Inst().getARMeetOption().getMeetType().type);
+                initCameraEngine();
             }
         });
+    }
+
+    /**
+     * 初始化相机及OpenGL引擎
+     */
+    private void initCameraEngine() {
+        //初始化相机引擎及OpenGL
+        int permission = PermissionChecker.checkSelfPermission(ARMeetEngine.Inst().context(), CAMERA);
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            if (mVideoCapturer == null) {
+                mCameraId = 0;
+                String cameraDeviceName = CameraEnumerationAndroid.getDeviceName(mCameraId);
+                String frontCameraDeviceName =
+                        CameraEnumerationAndroid.getNameOfFrontFacingDevice();
+                int numberOfCameras = CameraEnumerationAndroid.getDeviceCount();
+                if (numberOfCameras > 1 && frontCameraDeviceName != null && ARMeetEngine.Inst().getARMeetOption().isDefaultFrontCamera()) {
+                    cameraDeviceName = frontCameraDeviceName;
+                    mCameraId = 1;
+                }
+                Log.d(TAG, "cameraId: " + cameraDeviceName);
+                mVideoCapturer = VideoCapturerAndroid.create(cameraDeviceName, null);
+                if (mVideoCapturer == null) {
+                    Log.e("sys", "Failed to open camera");
+                }
+            } else {
+            }
+        } else {
+        }
+    }
+
+    /**
+     * 设置会议配置项
+     * @param option 会议配置对象
+     */
+    public void setMeetOption(ARMeetOption option) {
+        if(null != option) {
+            if (option.getMediaType() == ARVideoCommon.ARMediaType.Audio) {
+                nativeSetAuidoModel(true, true);
+            } else {
+                nativeSetAuidoModel(false, true);
+            }
+            if (option.getScreenOriention() == ARVideoCommon.ARVideoOrientation.Portrait) {
+                nativeSetScreenToPortrait();
+            } else {
+                nativeSetScreenToLandscape();
+            }
+            nativeSetVideoProfileMode(option.getVideoProfile().level);
+            nativeSetVideoFpsProfile(option.getVideoFps().level);
+            nativeSetMeetMode(option.getMeetType().type);
+        } else {
+            Log.e(TAG, "setMeetOption option is null");
+        }
     }
 
     public void setMeetEvent(ARMeetEvent event) {
@@ -173,14 +228,27 @@ public class ARMeetKit {
      * @param enable
      */
     public void setForceAecEnable(final boolean enable) {
+//        mExecutor.execute(new Runnable() {
+//            @Override
+//            public void run() {
+                nativeForceSetAecEnable(enable);
+//            }
+//        });
+    }
+
+    /**
+     * 打开或关闭音频数据回调开关
+     *
+     * @param bEnable true: 打开; false: 关闭
+     */
+    public void setAudioNeedPcm(final boolean bEnable) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                nativeForceSetAecEnable(enable);
+                nativeSetAudioNeedPcm(bEnable);
             }
         });
     }
-
 
     /**
      * 设置本地视频是否可用
@@ -336,17 +404,18 @@ public class ARMeetKit {
                             nativeSetVideoCapturer(mVideoCapturer, lRender);
                             LooperExecutor.exchange(result, 1);
                         } else {
-                            LooperExecutor.exchange(result, 3);
+                            nativeSetVideoCapturer(mVideoCapturer, lRender);
+                            LooperExecutor.exchange(result, 1);
                         }
                     } else {
                         LooperExecutor.exchange(result, 0);
                     }
-
                 }
             }
         });
         return LooperExecutor.exchange(result, 0);
     }
+
 
     /**
      * 重启本地摄像机
@@ -475,6 +544,57 @@ public class ARMeetKit {
                 if (mVideoCapturer != null && CameraEnumerationAndroid.getDeviceCount() > 1) {
                     mCameraId = (mCameraId + 1) % CameraEnumerationAndroid.getDeviceCount();
                     mVideoCapturer.switchCamera(null);
+                }
+            }
+        });
+    }
+    /**
+     * 设置ARCamera视频回调数据
+     *
+     * @param capturerObserver
+     */
+    public void setARCameraCaptureObserver(final VideoCapturer.ARCameraCapturerObserver capturerObserver) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mVideoCapturer != null) {
+                    mVideoCapturer.setARCameraObserver(capturerObserver);
+                }
+            }
+        });
+    }
+
+    /**
+     * 设置是否采用ARCamera，默认使用ARCamera， 如果设置为false，必须调用setByteBufferFrameCaptured才能本地显示
+     *
+     * @param usedARCamera true：使用ARCamera，false：不使用ARCamera采集的数据
+     */
+    public void setUsedARCamera(final boolean usedARCamera) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mVideoCapturer != null) {
+                    mVideoCapturer.setUsedARCamera(usedARCamera);
+                }
+            }
+        });
+    }
+
+    /**
+     * 设置本地显示的视频数据
+     *
+     * @param data      相机采集数据
+     * @param width     宽
+     * @param height    高
+     * @param rotation  旋转角度
+     * @param timeStamp 时间戳
+     */
+    public void setByteBufferFrameCaptured(final byte[] data, final int width, final int height, final int rotation, final long timeStamp) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mVideoCapturer != null) {
+                    mVideoCapturer.setByteBufferFrameCaptured(data, width, height, rotation, timeStamp);
                 }
             }
         });
@@ -646,18 +766,67 @@ public class ARMeetKit {
     }
 
     /**
-     * 外部视频采集的yuv数据流,
-     *
-     * @param bEnable
-     * @param nType   0:yuv 1:rgb
+     * 自定义视频数据接入时，本地显示
+     * @param lRender 底层图像地址
      */
-    public void setExternalCameraCapturer(final boolean bEnable, final int nType) {
+    public void setLocalVideoRender(final long lRender) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                nativeSetExternalCameraCapturer(bEnable, nType);
+                nativeSetLocalVideoRender(lRender);
             }
         });
+    }
+
+    /**
+     * 按照旋转角度显示渲染本地之定义视频数据
+     * @param lRender 底层图像地址
+     * @param rotation ARVideoRotation 视频的角度
+     */
+    public void setLocalVideoRotationRender(final long lRender, final ARVideoCommon.ARVideoRotation rotation) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeSetLocalVideoRotationRender(lRender, rotation.rotation);
+            }
+        });
+    }
+
+    /**
+     * 外部视频采集的yuv数据流,
+     *
+     * @param bEnable
+     * @param captureType  ARCaptureType
+     */
+    public void setExternalCameraCapturer(final boolean bEnable, final ARCaptureType captureType) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeSetExternalCameraCapturer(bEnable, captureType.type);
+            }
+        });
+    }
+    /**
+     * 外部nv12数据, 使用此接口时， 不能使用setLocalVideoCapturer接口
+     * @param data
+     * @param width
+     * @param height
+     * @param rotation ARVideoRotation 视频的角度
+     * @return -1:分辨率或者自定义视频数据类型不正确，0：自定义视频流对接成功。
+     */
+    public int setVideoNV12Data(byte[] data, int width, int height, ARVideoCommon.ARVideoRotation rotation) {
+        return nativeSetNV12Data(data, width, height, rotation.rotation);
+    }
+    /**
+     * 外部nv21数据, 使用此接口时， 不能使用setLocalVideoCapturer接口
+     * @param data
+     * @param width
+     * @param height
+     * @param rotation ARVideoRotation 视频的角度
+     * @return -1:分辨率或者自定义视频数据类型不正确，0：自定义视频流对接成功。
+     */
+    public int setVideoNV21Data(byte[] data, int width, int height, ARVideoCommon.ARVideoRotation rotation) {
+        return nativeSetNV21Data(data, width, height, rotation.rotation);
     }
 
     /**
@@ -665,21 +834,46 @@ public class ARMeetKit {
      * @param p_yuv
      * @param width
      * @param height
-     * @return -1:分辨率或者塞流数据类型不正确，0塞流成功
+     * @param rotation ARVideoRotation 视频的角度
+     * @return -1:分辨率或者自定义视频数据类型不正确，0：自定义视频流对接成功。
      */
-    public int setVideoYUV420PData(byte[] p_yuv, int width, int height) {
-        return nativeSetYUV420PData(p_yuv, width, height);
+    public int setVideoYUV420PData(byte[] p_yuv, int width, int height, ARVideoCommon.ARVideoRotation rotation) {
+        return nativeSetYUV420PData(p_yuv, width, height, rotation.rotation);
+    }
+
+
+    private String getExtensionName(String filename) {
+        if ((filename != null) && (filename.length() > 0)) {
+            int dot = filename.lastIndexOf('.');
+            if ((dot > -1) && (dot < (filename.length() - 1))) {
+                return filename.substring(dot + 1);
+            }
+        }
+        return filename;
+    }
+
+    /**
+     * 设置监看模式
+     * @param bMonitor true：监看模式，false：普通模式
+     */
+    public void setMonitorMode(final boolean bMonitor) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeSetMonitorMode(bMonitor);
+            }
+        });
     }
 
     /**
      * 加入会议
      *
-     * @param anyRTCId
+     * @param roomId
      * @param userId
      * @param userData
      * @return 订阅结果；false/true:入会失败（没有RECORD_AUDIO权限）/入会成功
      */
-    public boolean joinRTCByToken(final String token, final String anyRTCId, final String userId, final String userData) {
+    public boolean joinRTCByToken(final String token, final String roomId, final String userId, final String userData) {
         final Exchanger<Boolean> result = new Exchanger<Boolean>();
         mExecutor.execute(new Runnable() {
             @Override
@@ -691,9 +885,9 @@ public class ARMeetKit {
                     if (null != token && !token.equals("")) {
                         nativeSetUserToken(token);
                     }
-                    if (!TextUtils.isEmpty(anyRTCId)) {
+                    if (!TextUtils.isEmpty(roomId)) {
                         nativeSetDeviceInfo(ARMeetEngine.Inst().getDeviceInfo());
-                        ret = nativeJoin(anyRTCId, ARMeetEngine.Inst().getARMeetOption().isHost(), userId, userData);
+                        ret = nativeJoin(roomId, ARMeetEngine.Inst().getARMeetOption().isHost(), userId, userData);
                     } else {
                         ret = false;
                     }
@@ -729,12 +923,34 @@ public class ARMeetKit {
         return LooperExecutor.exchange(result, false);
     }
 
+    /**
+     * 显示渲染远端视频
+     * @param publishId 远端视频流id
+     * @param lRender 底层图像地址
+     */
     public void setRemoteVideoRender(final String publishId, final long lRender) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 if (null != mVideoCapturer) {
                     nativeSetRTCVideoRender(publishId, lRender);
+                }
+            }
+        });
+    }
+
+    /**
+     * 按照旋转角度显示渲染远端视频
+     * @param publishId 远端视频流id
+     * @param lRender 底层图像地址
+     * @param rotation ARVideoRotation 视频的角度
+     */
+    public void setRemoteVideoRotationRender(final String publishId, final long lRender, final ARVideoCommon.ARVideoRotation rotation) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (null != mVideoCapturer) {
+                    nativeSetRTCVideoRotationRender(publishId, lRender, rotation.rotation);
                 }
             }
         });
@@ -865,16 +1081,16 @@ public class ARMeetKit {
 
     private ARMeetHelper rtMeetHelper = new ARMeetHelper() {
         @Override
-        public void OnRtcJoinMeetOK(String anyRTCId) {
+        public void OnRtcJoinMeetOK(String roomId) {
             if (arMeetEvent != null) {
-                arMeetEvent.onRTCJoinMeetOK(anyRTCId);
+                arMeetEvent.onRTCJoinMeetOK(roomId);
             }
         }
 
         @Override
-        public void OnRtcJoinMeetFailed(String anyRTCId, int nCode, String strReason) {
+        public void OnRtcJoinMeetFailed(String roomId, int nCode, String strReason) {
             if (arMeetEvent != null) {
-                arMeetEvent.onRTCJoinMeetFailed(anyRTCId, nCode, strReason);
+                arMeetEvent.onRTCJoinMeetFailed(roomId, nCode, strReason);
             }
         }
 
@@ -925,6 +1141,17 @@ public class ARMeetKit {
         public void OnRtcCloseAudioTrack(String peerId, String userId) {
             if (arMeetEvent != null) {
                 arMeetEvent.onRTCCloseRemoteAudioTrack(peerId, userId);
+            }
+        }
+
+        @Override
+        public void OnRtcAudioPcmData(String peerId, byte[] data, int len, int sampleHz, int channel) {
+            if (arMeetEvent != null) {
+                if(peerId.equals("localAudio")) {
+                    arMeetEvent.onRTCLocalAudioPcmData(peerId, data, len, sampleHz, channel);
+                } else {
+                    arMeetEvent.onRTCRemoteAudioPcmData(peerId, data, len, sampleHz, channel);
+                }
             }
         }
 
@@ -1056,7 +1283,7 @@ public class ARMeetKit {
      *
      * @return
      */
-    public long getAnyrtcUvcCallabck() {
+    public long getUVCCallabck() {
         return nativeGetAnyrtcUvcCallabck();
     }
 
@@ -1109,6 +1336,8 @@ public class ARMeetKit {
 
     private native void nativeForceSetAecEnable(boolean enable);
 
+    private native void nativeSetAudioNeedPcm(boolean enable);
+
     private native void nativeSetAudioEnable(boolean enable);
 
     private native void nativeSetVideoEnable(boolean enable);
@@ -1131,11 +1360,19 @@ public class ARMeetKit {
 
     private native void nativeSetVideoCapturer(VideoCapturer capturer, long nativeRenderer);
 
+    private native void nativeSetLocalVideoRender(long nativeRenderer);
+
+    private native void nativeSetLocalVideoRotationRender(long nativeRenderer, int rotation);
+
     private native void nativeSetExternalCameraCapturer(boolean enable, int type);
 
-    private native int nativeSetYUV420PData(byte[] p_yuv, int width, int height);
+    private native int nativeSetNV21Data(byte[] data, int width, int height, int rotation);
 
-    private native int nativeSetVideoYUV420PData(byte[] y, int stride_y, byte[]  u, int stride_u, byte[]  v, int stride_v, int width, int height);
+    private native int nativeSetNV12Data(byte[] data, int width, int height, int rotation);
+
+    private native int nativeSetYUV420PData(byte[] data, int width, int height, int rotation);
+
+    private native int nativeSetVideoYUV420PData(byte[] y, int stride_y, byte[]  u, int stride_u, byte[]  v, int stride_v, int width, int height, int rotation);
 
     private native void nativeSetVideoCapturer(byte[] p_rgb, int width, int height);
 
@@ -1157,13 +1394,17 @@ public class ARMeetKit {
 
     private native void nativeSetDriverMode(boolean enable);
 
-    private native boolean nativeJoin(String anyRTCId, boolean isHoster, String userId, String userData);
+    private native void nativeSetMonitorMode(boolean bMonitor);
+
+    private native boolean nativeJoin(String roomId, boolean isHoster, String userId, String userData);
 
     private native void nativeLeave();
 
     private static native void nativeSetAuidoModel(boolean enabled, boolean audioDetect);
 
-    private native void nativeSetRTCVideoRender(String strLivePeerId, long nativeRenderer);
+    private native void nativeSetRTCVideoRender(String publishId, long nativeRenderer);
+
+    private native void nativeSetRTCVideoRotationRender(String publishId, long nativeRenderer, int rotation);
 
     private native boolean nativeSendUserMsg(String userName, String headUrl, String content);
 

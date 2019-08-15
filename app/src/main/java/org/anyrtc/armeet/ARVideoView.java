@@ -14,7 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import org.anyrtc.common.utils.ScreenUtils;
+import org.ar.common.utils.ScreenUtils;
 import org.webrtc.EglBase;
 import org.webrtc.EglRenderer;
 import org.webrtc.PercentFrameLayout;

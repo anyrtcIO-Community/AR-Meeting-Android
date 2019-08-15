@@ -8,9 +8,9 @@ import org.ar.common.enums.ARNetQuality;
 public abstract class ARMeetEvent  {
 
 
-    public abstract void onRTCJoinMeetOK(String anyrtcId);
+    public abstract void onRTCJoinMeetOK(String roomId);
 
-    public abstract void onRTCJoinMeetFailed(String anyrtcId, int code, String reason);
+    public abstract void onRTCJoinMeetFailed(String roomId, int code, String reason);
 
     public abstract void onRTCLeaveMeet(int code);
 
@@ -25,6 +25,10 @@ public abstract class ARMeetEvent  {
     public abstract void onRTCOpenRemoteAudioTrack(String peerId, String userId, String userData);
 
     public abstract void onRTCCloseRemoteAudioTrack(String peerId, String userId);
+
+    public abstract void onRTCLocalAudioPcmData(String peerId, byte[] data, int nLen, int nSampleHz, int nChannel);
+
+    public abstract void onRTCRemoteAudioPcmData(String peerId, byte[] data, int nLen, int nSampleHz, int nChannel);
 
     public abstract void onRTCRemoteAVStatus(String peerId, boolean bAudio, boolean bVideo);
 

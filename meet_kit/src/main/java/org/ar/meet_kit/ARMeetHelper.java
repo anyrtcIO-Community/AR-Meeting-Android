@@ -8,18 +8,18 @@ public interface ARMeetHelper {
     /**
      * Join meet OK
      *
-     * @param strAnyrtcId
+     * @param roomId
      */
-    public void OnRtcJoinMeetOK(String strAnyrtcId);
+    public void OnRtcJoinMeetOK(String roomId);
 
     /**
      * Join meet Failed
      *
-     * @param strAnyrtcId
+     * @param roomId
      * @param nCode
      * @param strReason
      */
-    public void OnRtcJoinMeetFailed(String strAnyrtcId, int nCode, String strReason);
+    public void OnRtcJoinMeetFailed(String roomId, int nCode, String strReason);
 
     /**
      * Leave meet
@@ -50,6 +50,8 @@ public interface ARMeetHelper {
     public void OnRtcOpenAudioTrack(String strRTCPeerId, String strUserId, String strUserData);
 
     public void OnRtcCloseAudioTrack(String strRTCPeerId, String strUserId);
+
+    public void OnRtcAudioPcmData(String strRTCPeerId, byte[] data, int nLen, int nSampleHz, int nChannel);
 
     /**
      * OnRtcUserCome
