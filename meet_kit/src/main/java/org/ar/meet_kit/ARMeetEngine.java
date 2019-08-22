@@ -74,7 +74,7 @@ public class ARMeetEngine {
         MediaCodecVideoDecoder.disableVp9HwCodec();
         MediaCodecVideoDecoder.disableH264HwCodec();
     }
-    public void initEngineWithARInfo(final Context ctx, final String strDeveloperId, final String strAppId,
+    private void initEngineWithARInfo(final Context ctx, final String strDeveloperId, final String strAppId,
                                          final String strAESKey, final String strToken) {
         executor.execute(new Runnable() {
             @Override
@@ -82,7 +82,7 @@ public class ARMeetEngine {
                 context = ctx;
                 ContextUtils.initialize(ctx);
                 nativeInitCtx(ctx, eglBase.getEglBaseContext());
-                nativeInitEngineWithARInfo(strDeveloperId, strAppId, strAESKey, strToken);
+                nativeInitEngineWithARInfo(strDeveloperId, strAppId, strAESKey, strToken, getPackageName());
             }
         });
     }
@@ -103,7 +103,7 @@ public class ARMeetEngine {
                 ContextUtils.initialize(ctx);
                 nativeInitCtx(ctx, eglBase.getEglBaseContext());
                 context = ctx;
-                nativeInitEngineWithAppInfo(strAppId, strToken);
+                nativeInitEngineWithAppInfo(strAppId, strToken, getPackageName());
             }
         });
     }
@@ -187,9 +187,9 @@ public class ARMeetEngine {
     private static native void nativeInitCtx(Context ctx, EglBase.Context context);
 
     private static native void nativeInitEngineWithARInfo(String strDeveloperId, String strAppId,
-                                                              String strAESKey, String strToken);
+                                                              String strAESKey, String strToken, String strPackage);
 
-    private static native void nativeInitEngineWithAppInfo(String strAppId, String strToken);
+    private static native void nativeInitEngineWithAppInfo(String strAppId, String strToken, String strPackage);
 
     private static native void nativeConfigServerForPriCloud(String strAddr, int nPort);
 

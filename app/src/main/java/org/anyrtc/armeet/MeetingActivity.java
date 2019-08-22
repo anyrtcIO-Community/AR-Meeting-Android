@@ -88,6 +88,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         mMeetKit.setVideoCodec("VP9");
         //设置视频码率
         mMeetKit.setLocalVideoBitrate(100);
+        
         VideoRenderer localVideoRender = mVideoView.openLocalVideoRender();
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
         mMeetKit.joinRTCByToken("",meetId,userId,getUserInfo());
@@ -138,7 +139,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 logAdapter.addData("方法："+(ibVideo.isSelected() ? "本地视频传输关闭" : "本地视频传输开启"));
                 break;
             case R.id.btn_log:
-                rl_log_layout.setVisibility(View.VISIBLE);
+                    rl_log_layout.setVisibility(View.VISIBLE);
                 break;
             case R.id.ibtn_close_log:
                 rl_log_layout.setVisibility(View.GONE);
