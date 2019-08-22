@@ -1011,6 +1011,20 @@ public class ARMeetKit {
     }
 
     /**
+     * 设置音频采样率
+     * @param sample_hz 音频采样率 （16000 || 32000 || 48000 ||  8000 || 44100）
+     * @param channel 音频声道，（1或者2）
+     */
+    public void resamplerLocalAudio(final int sample_hz, final int channel) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeResamplerLocalAudio(sample_hz, channel);
+            }
+        });
+    }
+
+    /**
      * 设置Zoom模式
      *
      * @param mode 0:normal 1:single 2:driver
@@ -1441,6 +1455,8 @@ public class ARMeetKit {
     private native void nativeSetBroadCast(boolean enable, String strLivePeerId);
 
     private native void nativeSetTalkOnly(boolean enable, String strLivePeerId);
+
+    private native void nativeResamplerLocalAudio(int sample_hz, int channel);
 
     private native void nativeSetZoomMode(int nMode/*0:normal 1:single 2:driver*/);
 

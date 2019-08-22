@@ -63,7 +63,7 @@ uploadArchives{
         repository(url:uri('D:\\liuxiaozhong\\LocalMaven'))
         pom.groupId = 'org.ar'
         pom.artifactId = 'meet_kit'
-        pom.version = '4.0.1'
+        pom.version = '4.0.2'
     }
 }
 //解决 gradlew 构建错误: 编码 GBK的不可映射字符
