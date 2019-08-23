@@ -33,7 +33,7 @@ install {
             project {
                 packaging 'aar'
                 // Add your description here
-                name 'anyrtc会议sdk'     //项目描述
+                name '会议sdk'     //项目描述
                 url siteUrl
                 // Set your license
                 licenses {

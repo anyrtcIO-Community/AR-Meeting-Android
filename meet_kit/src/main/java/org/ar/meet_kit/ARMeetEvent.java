@@ -8,61 +8,61 @@ import org.ar.common.enums.ARNetQuality;
 public abstract class ARMeetEvent  {
 
 
-    public abstract void onRTCJoinMeetOK(String roomId);
+    public  void onRTCJoinMeetOK(String roomId){};
 
-    public abstract void onRTCJoinMeetFailed(String roomId, int code, String reason);
+    public  void onRTCJoinMeetFailed(String roomId, int code, String reason){};
 
-    public abstract void onRTCLeaveMeet(int code);
+    public  void onRTCLeaveMeet(int code){};
 
-    public abstract void onRTCOpenRemoteVideoRender(String peerId, String publishId, String userId, String userData);
+    public  void onRTCOpenRemoteVideoRender(String peerId, String publishId, String userId, String userData){};
 
-    public abstract void onRTCCloseRemoteVideoRender(String peerId, String publishId, String userId);
+    public  void onRTCCloseRemoteVideoRender(String peerId, String publishId, String userId){};
 
-    public abstract void onRTCOpenScreenRender(String peerId, String publishId, String userId, String userData);
+    public  void onRTCOpenScreenRender(String peerId, String publishId, String userId, String userData){};
 
-    public abstract void onRTCCloseScreenRender(String peerId, String publishId, String userId);
+    public  void onRTCCloseScreenRender(String peerId, String publishId, String userId){};
 
-    public abstract void onRTCOpenRemoteAudioTrack(String peerId, String userId, String userData);
+    public  void onRTCOpenRemoteAudioTrack(String peerId, String userId, String userData){};
 
-    public abstract void onRTCCloseRemoteAudioTrack(String peerId, String userId);
+    public  void onRTCCloseRemoteAudioTrack(String peerId, String userId){};
 
-    public abstract void onRTCLocalAudioPcmData(String peerId, byte[] data, int nLen, int nSampleHz, int nChannel);
+    public  void onRTCLocalAudioPcmData(String peerId, byte[] data, int nLen, int nSampleHz, int nChannel){};
 
-    public abstract void onRTCRemoteAudioPcmData(String peerId, byte[] data, int nLen, int nSampleHz, int nChannel);
+    public  void onRTCRemoteAudioPcmData(String peerId, byte[] data, int nLen, int nSampleHz, int nChannel){};
 
-    public abstract void onRTCRemoteAVStatus(String peerId, boolean bAudio, boolean bVideo);
+    public  void onRTCRemoteAVStatus(String peerId, boolean bAudio, boolean bVideo){};
 
-    public abstract void onRTCLocalAVStatus(boolean bAudio, boolean bVideo);
+    public  void onRTCLocalAVStatus(boolean bAudio, boolean bVideo){};
 
-    public abstract void onRTCRemoteAudioActive(String peerId, String userId,int nLevel, int nTime);
+    public  void onRTCRemoteAudioActive(String peerId, String userId,int nLevel, int nTime){};
 
-    public abstract void onRTCLocalAudioActive( int nLevel, int nTime);
+    public  void onRTCLocalAudioActive( int nLevel, int nTime){};
 
-    public abstract void onRTCRemoteNetworkStatus(String peerId, String userId,int nNetSpeed, int nPacketLost, ARNetQuality netQuality);
+    public  void onRTCRemoteNetworkStatus(String peerId, String userId,int nNetSpeed, int nPacketLost, ARNetQuality netQuality){};
 
-    public abstract void onRTCLocalNetworkStatus(int nNetSpeed, int nPacketLost, ARNetQuality netQuality);
+    public  void onRTCLocalNetworkStatus(int nNetSpeed, int nPacketLost, ARNetQuality netQuality){};
 
-    public abstract void onRTCConnectionLost();
+    public  void onRTCConnectionLost(){};
 
-    public abstract void onRTCUserMessage(String userId, String userName, String headUrl, String message);
+    public  void onRTCUserMessage(String userId, String userName, String headUrl, String message){};
 
-    public abstract void onRTCShareEnable(boolean success);
+    public  void onRTCShareEnable(boolean success){};
 
-    public abstract void onRTCShareOpen(int type, String shareInfo, String userId, String userData);
+    public  void onRTCShareOpen(int type, String shareInfo, String userId, String userData){};
 
-    public abstract void onRTCShareClose();
+    public  void onRTCShareClose(){};
 
-    public abstract void onRTCHosterOnline(String peerId, String userId, String userData);
+    public  void onRTCHosterOnline(String peerId, String userId, String userData){};
 
-    public abstract void onRTCHosterOffline(String peerId);
+    public  void onRTCHosterOffline(String peerId){};
 
-    public abstract void onRTCTalkOnlyOn(String peerId, String userId, String userData);
+    public  void onRTCTalkOnlyOn(String peerId, String userId, String userData){};
 
-    public abstract void onRTCTalkOnlyOff(String peerId);
+    public  void onRTCTalkOnlyOff(String peerId){};
 
-    public abstract void onRtcUserCome(String peerId, String publishId, String userId, String userData);
+    public  void onRtcUserCome(String peerId, String publishId, String userId, String userData){};
 
-    public abstract void onRtcUserOut(String peerId, String publishId, String userId);
+    public  void onRtcUserOut(String peerId, String publishId, String userId){};
 
-    public abstract void onRTCZoomPageInfo(ARMeetZoomMode zoomMode, int allPages, int curPage, int allRender, int screenIndex, int num);
+    public  void onRTCZoomPageInfo(ARMeetZoomMode zoomMode, int allPages, int curPage, int allRender, int screenIndex, int num){};
 }

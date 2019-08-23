@@ -153,7 +153,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
-
     ARMeetEvent arMeetEvent = new ARMeetEvent() {
         @Override
         public void onRTCJoinMeetOK(final String anyrtcId) {

@@ -1,7 +1,6 @@
 package org.ar.meet_kit;
 
 import android.content.pm.PackageManager;
-import android.support.v4.content.PermissionChecker;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -98,7 +97,7 @@ public class ARMeetKit {
      */
     private void initCameraEngine() {
         //初始化相机引擎及OpenGL
-        int permission = PermissionChecker.checkSelfPermission(ARMeetEngine.Inst().context(), CAMERA);
+        int permission = ARMeetEngine.Inst().context().checkCallingOrSelfPermission(CAMERA);
         if (permission == PackageManager.PERMISSION_GRANTED) {
             // We don't have permission so prompt the user
             if (mVideoCapturer == null) {
@@ -406,7 +405,7 @@ public class ARMeetKit {
             public void run() {
                 synchronized (ARMeetKit.this) {
                     int ret = 0;
-                    int permission = PermissionChecker.checkSelfPermission(ARMeetEngine.Inst().context(), CAMERA);
+                    int permission = ARMeetEngine.Inst().context().checkCallingOrSelfPermission(CAMERA);
                     if (permission == PackageManager.PERMISSION_GRANTED) {
                         // We don't have permission so prompt the user
                         if (mVideoCapturer == null) {
@@ -454,7 +453,7 @@ public class ARMeetKit {
             public void run() {
                 synchronized (ARMeetKit.this) {
                     int ret = 0;
-                    int permission = PermissionChecker.checkSelfPermission(ARMeetEngine.Inst().context(), CAMERA);
+                    int permission = ARMeetEngine.Inst().context().checkCallingOrSelfPermission(CAMERA);
                     if (mVideoCapturer != null) {
                         try {
                             mVideoCapturer.stopCapture();
@@ -903,7 +902,7 @@ public class ARMeetKit {
             @Override
             public void run() {
                 boolean ret = false;
-                int permission = PermissionChecker.checkSelfPermission(ARMeetEngine.Inst().context(), RECORD_AUDIO);
+                int permission = ARMeetEngine.Inst().context().checkCallingOrSelfPermission(RECORD_AUDIO);
                 if (permission == PackageManager.PERMISSION_GRANTED) {
                     // We have permission granted to the user
                     if (null != token && !token.equals("")) {
