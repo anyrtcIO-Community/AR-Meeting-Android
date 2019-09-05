@@ -15,5 +15,6 @@ public class ARApplication extends Application {
     public void onCreate() {
         super.onCreate();
         ARMeetEngine.Inst().initEngine(getApplicationContext(), DeveloperInfo.APPID,DeveloperInfo.APPTOKEN);
+        ARMeetEngine.Inst().configServerForPriCloud("10.9.54.228",9080);
     }
 }
