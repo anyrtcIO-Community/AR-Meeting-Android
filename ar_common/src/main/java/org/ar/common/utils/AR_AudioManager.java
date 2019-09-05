@@ -11,8 +11,6 @@ import android.media.AudioManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import org.anyrtc.common.utils.AnyRTCUtils;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -131,7 +129,7 @@ public class AR_AudioManager {
                 }
             }
         });
-        AnyRTCUtils.logDeviceInfo(TAG);
+        ARUtils.logDeviceInfo(TAG);
     }
 
     public void init() {
@@ -233,7 +231,7 @@ public class AR_AudioManager {
                 int state = intent.getIntExtra("state", STATE_UNPLUGGED);
                 int microphone = intent.getIntExtra("microphone", HAS_NO_MIC);
                 String name = intent.getStringExtra("name");
-                Log.d(TAG, "BroadcastReceiver.onReceive" + AnyRTCUtils.getThreadInfo()
+                Log.d(TAG, "BroadcastReceiver.onReceive" + ARUtils.getThreadInfo()
                         + ": "
                         + "a=" + intent.getAction()
                         + ", s=" + (state == STATE_UNPLUGGED ? "unplugged" : "plugged")
@@ -327,7 +325,7 @@ public class AR_AudioManager {
         // in the list. Given the current implementation, we know that the choice
         // will then be between EARPIECE and SPEAKER_PHONE.
         if (audioDevices.size() == 2) {
-            AnyRTCUtils.assertIsTrue(audioDevices.contains(AudioDevice.EARPIECE)
+            ARUtils.assertIsTrue(audioDevices.contains(AudioDevice.EARPIECE)
                     && audioDevices.contains(AudioDevice.SPEAKER_PHONE));
             // Start the proximity sensor.
             proximitySensor.start();

@@ -204,7 +204,7 @@ public class ScreenCapturerAndroid
 
   @Override
   public List<CameraEnumerationAndroid.CaptureFormat> getSupportedFormats() {
-    return null;
+    return new ArrayList<CameraEnumerationAndroid.CaptureFormat>() ;
   }
 
   public long getNumCapturedFrames() {

@@ -159,4 +159,19 @@
 
     </RelativeLayout>
 
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="开始录像"></Button>
+
+    <Button
+        android:id="@+id/btn_stop"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_height="wrap_content"
+        android:text="停止录像"></Button>
+
 </RelativeLayout>

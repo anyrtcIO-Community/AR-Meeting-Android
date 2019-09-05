@@ -7,6 +7,7 @@ package org.ar.common.enums;
  */
 
 public class ARVideoCommon {
+
     public enum ARVideoLayout {
         AR_V_1X3(0),
         AR_V_3X3_auto(1);
@@ -204,6 +205,62 @@ public class ARVideoCommon {
 
         private ARMediaType(int type) {
             this.type = type;
+        }
+    }
+
+    /**
+     * Camera外部数据类型
+     */
+    public enum ARCaptureType {
+        /**
+         * YUV
+         */
+        YUV420P(0),
+        /**
+         * RGB
+         */
+        RGB565(1),
+        /**
+         * NV12
+         */
+        NV12(0),
+        /**
+         * NV21
+         */
+        NV21(0);
+
+        public final int type;
+
+        private ARCaptureType(int type) {
+            this.type = type;
+        }
+    }
+
+    /**
+     * 视频旋转方向
+     */
+    public enum ARVideoRotation {
+        /**
+         * 0
+         */
+        ARVideoRotation0(0),
+        /**
+         * 90
+         */
+        ARVideoRotation90(90),
+        /**
+         * 180
+         */
+        ARVideoRotation180(180),
+        /**
+         * 270
+         */
+        ARVideoRotation270(270);
+
+        public final int rotation;
+
+        private ARVideoRotation(int rotation) {
+            this.rotation = rotation;
         }
     }
 }

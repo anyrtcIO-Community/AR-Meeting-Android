@@ -120,5 +120,5 @@ apply from: 'fat-aar.gradle'
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:26+'
-    compile 'org.ar:ar_common:3.0.3'
+    embedded project(path: ':ar_common')
 }

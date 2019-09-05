@@ -1,6 +1,7 @@
 package org.anyrtc.armeet;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,6 +25,10 @@ import org.ar.meet_kit.ARMeetZoomMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.webrtc.VideoRenderer;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MeetingActivity extends BaseActivity implements View.OnClickListener {
 
@@ -85,13 +90,32 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         mMeetKit = new ARMeetKit(arMeetEvent);
 
         //设置视频编码器
-        mMeetKit.setVideoCodec("VP9");
         //设置视频码率
-        mMeetKit.setLocalVideoBitrate(100);
-        
+
         VideoRenderer localVideoRender = mVideoView.openLocalVideoRender();
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
         mMeetKit.joinRTCByToken("",meetId,userId,getUserInfo());
+        findViewById(R.id.btn_start).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String path = Environment.getExternalStorageDirectory().getPath() + "/Android/meet/";
+                File file = new File(path);
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
+                path = path + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + ".mp3";
+                int result = mMeetKit.startRecorder(false, path);
+                Toast.makeText(MeetingActivity.this,result+"",Toast.LENGTH_SHORT).show();
+                Log.e("Record","[AR_Log] result: " + result);
+            }
+        });
+
+        findViewById(R.id.btn_stop).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMeetKit.stopRecorder();
+            }
+        });
     }
 
     public String getUserInfo() {
