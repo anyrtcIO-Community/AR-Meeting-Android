@@ -34,14 +34,14 @@ public class MainActivity extends BaseActivity {
                     Toast.makeText(MainActivity.this,"房间ID不能为空",Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (AndPermission.hasPermissions(MainActivity.this,Permission.RECORD_AUDIO)){
+                if (AndPermission.hasPermissions(MainActivity.this,Permission.RECORD_AUDIO,Permission.CAMERA,Permission.READ_EXTERNAL_STORAGE,Permission.WRITE_EXTERNAL_STORAGE)){
                     startAnimActivity(MeetingActivity.class,"meet_id",et_meet_id.getText().toString());
                 }else {
 
-                    AndPermission.with(MainActivity.this).runtime().permission(Permission.RECORD_AUDIO, Permission.CAMERA).onDenied(new Action<List<String>>() {
+                    AndPermission.with(MainActivity.this).runtime().permission(Permission.RECORD_AUDIO,Permission.CAMERA,Permission.READ_EXTERNAL_STORAGE,Permission.WRITE_EXTERNAL_STORAGE).onDenied(new Action<List<String>>() {
                         @Override
                         public void onAction(List<String> data) {
-                            Toast.makeText(MainActivity.this, "请打开音视频权限", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "请打开音视频,文件读写权限", Toast.LENGTH_SHORT).show();
                         }
                     }).onGranted(new Action<List<String>>() {
                         @Override

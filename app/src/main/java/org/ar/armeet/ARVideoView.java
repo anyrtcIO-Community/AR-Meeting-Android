@@ -473,7 +473,16 @@ public class ARVideoView implements View.OnTouchListener {
             }
         }
     }
-
+    public void removeAllRemoteRender() {
+        Iterator<Map.Entry<String, VideoView>> iter = mRemoteRenderList.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry<String, VideoView> entry = iter.next();
+            VideoView render = entry.getValue();
+            render.surfaceViewRenderer.release();
+            rlVideoGroup.removeView(render.mLayout);
+        }
+        mRemoteRenderList.clear();
+    }
 
     public void sortVideoRenderIndex() {
         List<Map.Entry<String, VideoView>> list = new ArrayList<Map.Entry<String, VideoView>>(mRemoteRenderList.entrySet());

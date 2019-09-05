@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -81,7 +82,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         option.setDefaultFrontCamera(true);
         //设置视频分辨率
         option.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile480x640);
-        option.setVideoFps(ARVideoCommon.ARVideoFrameRate.ARVideoFrameRateFps10);
         //设置会议类型
         option.setMeetType(ARMeetType.Normal);
 
@@ -90,8 +90,15 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         mMeetKit.setFrontCameraMirrorEnable(true);
         mMeetKit.setNetworkStatus(true);
         VideoRenderer localVideoRender = mVideoView.openLocalVideoRender();
-//  设置码率
-        mMeetKit.setLocalVideoBitrate(100);
+        //  设置码率
+//        mMeetKit.setLocalVideoBitrate();
+        //设置视频编码
+//        mMeetKit.setVideoCodec();
+        //录制音视频
+//        mMeetKit.startRecorder();
+        //停止录制
+//        mMeetKit.stopRecorder();
+
 
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
         mMeetKit.joinRTCByToken("", meetId, userId, getUserInfo());
@@ -164,6 +171,16 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode==KeyEvent.KEYCODE_BACK){
+            if (mMeetKit != null) {
+                mMeetKit.clean();
+            }
+            finishAnimActivity();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
     ARMeetEvent arMeetEvent = new ARMeetEvent() {
         @Override
@@ -181,7 +198,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCJoinMeetFailed 加入房间失败 ID：" + roomId + "code:" + code+"reason:"+reason);
+                    logAdapter.addData("回调：onRTCJoinMeetFailed 加入房间失败 ID：" + roomId + "code:" + code + "reason:" + reason);
                     if (code == 701) {
                         Toast.makeText(MeetingActivity.this, "会议人数已满", Toast.LENGTH_SHORT).show();
                         finishAnimActivity();
@@ -278,6 +295,16 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                     logAdapter.addData("回调：onRtcOpenRemoteAudioTrack 远程音频流离开 peerId:" + peerId + "user:" + userId);
                 }
             });
+        }
+
+        @Override
+        public void onRTCLocalAudioPcmData(String peerId, byte[] data, int nLen, int nSampleHz, int nChannel) {
+
+        }
+
+        @Override
+        public void onRTCRemoteAudioPcmData(String peerId, byte[] data, int nLen, int nSampleHz, int nChannel) {
+
         }
 
         @Override
@@ -470,6 +497,10 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mVideoView!=null){
+            mVideoView.removeLocalVideoRender();
+            mVideoView.removeAllRemoteRender();
+        }
         if (arAudioManager != null) {
             arAudioManager.close();
             arAudioManager = null;
