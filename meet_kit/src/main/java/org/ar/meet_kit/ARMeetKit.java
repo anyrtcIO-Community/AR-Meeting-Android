@@ -925,7 +925,39 @@ public class ARMeetKit {
     }
 
     /**
-     * 设置本地录像路径
+     * 开始录像
+     * @param isNeedVideo 是否需要录制视频（true：录制音视频， false：录制音频）
+     * @param onlyLocalVideo 是否仅录制本地视频（true：本地音视频， false：所有音视频）
+     * @param filePath 本地录像路径（音频文件格式为mp3, 视频文件格式为mp4）
+     * @return 返回值：0：开始录制成功，-1：文件格式不匹配
+     */
+    private int startRecorder(final boolean isNeedVideo, final boolean onlyLocalVideo, final String filePath) {
+        if(isNeedVideo) {
+            //视频文件后缀名必须是mp4
+            if(filePath.lastIndexOf("mp4") == -1) {
+                return -1;
+            }
+        } else {
+            //音频文件后缀名必须是mp3
+            if(filePath.lastIndexOf("mp3") == -1) {
+                return -1;
+            }
+        }
+        final Exchanger<Integer> result = new Exchanger<Integer>();
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                int ret = nativeStartRecorder(isNeedVideo, onlyLocalVideo, filePath);
+                LooperExecutor.exchange(result, ret);
+            }
+        });
+        return LooperExecutor.exchange(result, 0);
+    }
+
+
+
+    /**
+     * 开始录像
      * @param isNeedVideo 是否需要录制视频（true：录制音视频， false：录制音频）
      * @param filePath 本地录像路径（音频文件格式为mp3, 视频文件格式为mp4）
      * @return 返回值：0：开始录制成功，-1：文件格式不匹配
@@ -946,7 +978,7 @@ public class ARMeetKit {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                int ret = nativeStartRecorder(isNeedVideo, filePath);
+                int ret = nativeStartRecorder(isNeedVideo, true, filePath);
                 LooperExecutor.exchange(result, ret);
             }
         });
@@ -1479,7 +1511,7 @@ public class ARMeetKit {
 
     private native void nativeLeave();
 
-    private native int nativeStartRecorder(boolean isNeedVideo, String filePath);
+    private native int nativeStartRecorder(boolean isNeedVideo,boolean onlyLocal, String filePath);
 
     private native boolean nativeStopRecorder();
 
