@@ -11,6 +11,22 @@ public interface ARMeetHelper {
      * @param roomId
      */
     public void OnRtcJoinMeetOK(String roomId);
+    /**
+     * Rtc Connecting
+     *
+     */
+    public void OnRtcConnecting();
+    /**
+     * Rtc ReConnecting
+     *
+     */
+    public void OnRtcReConnecting();
+    /**
+     * ReJoin meet OK
+     *
+     * @param roomId
+     */
+    public void OnRtcReJoinMeetOK(String roomId);
 
     /**
      * Join meet Failed

@@ -7,8 +7,13 @@ import org.ar.common.enums.ARNetQuality;
  */
 public abstract class ARMeetEvent  {
 
+    public void onRTCJoinMeetOK(String roomId){}
 
-    public  void onRTCJoinMeetOK(String roomId){}
+    public void onRTCConnecting(){}
+
+    public void onRTCReConnecting(){}
+
+    public void onRTCReJoinMeetOK(String roomId){}
 
     public  void onRTCJoinMeetFailed(String roomId, int code, String reason){}
 

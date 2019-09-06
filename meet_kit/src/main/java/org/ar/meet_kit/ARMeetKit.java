@@ -1195,6 +1195,27 @@ public class ARMeetKit {
         }
 
         @Override
+        public void OnRtcConnecting() {
+            if (arMeetEvent != null) {
+                arMeetEvent.onRTCConnecting();
+            }
+        }
+
+        @Override
+        public void OnRtcReConnecting() {
+            if (arMeetEvent != null) {
+                arMeetEvent.onRTCReConnecting();
+            }
+        }
+
+        @Override
+        public void OnRtcReJoinMeetOK(String roomId) {
+            if (arMeetEvent != null) {
+                arMeetEvent.onRTCReJoinMeetOK(roomId);
+            }
+        }
+
+        @Override
         public void OnRtcJoinMeetFailed(String roomId, int nCode, String strReason) {
             if (arMeetEvent != null) {
                 arMeetEvent.onRTCJoinMeetFailed(roomId, nCode, strReason);
