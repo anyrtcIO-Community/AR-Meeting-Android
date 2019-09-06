@@ -1,8 +1,10 @@
 package org.ar.armeet;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -25,6 +27,10 @@ import org.ar.meet_kit.ARMeetZoomMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.webrtc.VideoRenderer;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MeetingActivity extends BaseActivity implements View.OnClickListener {
 
@@ -94,10 +100,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
 //        mMeetKit.setLocalVideoBitrate();
         //设置视频编码
 //        mMeetKit.setVideoCodec();
-        //录制音视频
-//        mMeetKit.startRecorder();
-        //停止录制
-//        mMeetKit.stopRecorder();
+
 
 
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
@@ -109,6 +112,17 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             }
         });
         arAudioManager.init();
+
+        //录制音视频
+        String path = Environment.getExternalStorageDirectory().getPath() + "/Android/meet/";
+        File file = new File(path);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        path = path + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + ".mp4";
+        int result = mMeetKit.startRecorder(true, path);
+        Log.e("Record","[AR_Log] result: " + result);
+
     }
 
     public String getUserInfo() {
@@ -163,6 +177,8 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 rl_log_layout.setVisibility(View.GONE);
                 break;
             case R.id.ib_leave:
+                //        //停止录制
+                 mMeetKit.stopRecorder();
                 if (mMeetKit != null) {
                     mMeetKit.clean();
                 }
