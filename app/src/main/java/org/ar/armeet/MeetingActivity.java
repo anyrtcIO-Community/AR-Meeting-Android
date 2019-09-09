@@ -90,7 +90,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         option.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile480x640);
         //设置会议类型
         option.setMeetType(ARMeetType.Normal);
-
+        option.setVideoFps(ARVideoCommon.ARVideoFrameRate.ARVideoFrameRateFps60);
         option.setMediaType(ARVideoCommon.ARMediaType.Video);
         mMeetKit = new ARMeetKit(arMeetEvent);
         mMeetKit.setFrontCameraMirrorEnable(true);
