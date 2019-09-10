@@ -43,7 +43,12 @@ public class ARMeetOption {
         this.isDefaultFrontCamera = isDefaultFrontCamera;
         this.mScreenOriention = mScreenOriention;
         this.videoProfile = videoProfile;
-        this.videoFps = videoFps;
+        if (videoFps== ARVideoCommon.ARVideoFrameRate.ARVideoFrameRateFps60){
+            this.videoFps = ARVideoCommon.ARVideoFrameRate.ARVideoFrameRateFps30;
+        }else {
+            this.videoFps=videoFps;
+        }
+
         this.mediaType = mediaType;
         this.meetType = meetType;
         this.isHost = isHost;
@@ -81,7 +86,11 @@ public class ARMeetOption {
     }
 
     public void setVideoFps(ARVideoCommon.ARVideoFrameRate videoFps) {
-        this.videoFps = videoFps;
+        if (videoFps== ARVideoCommon.ARVideoFrameRate.ARVideoFrameRateFps60){
+            this.videoFps = ARVideoCommon.ARVideoFrameRate.ARVideoFrameRateFps30;
+        }else {
+            this.videoFps=videoFps;
+        }
     }
 
     protected ARVideoCommon.ARMediaType getMediaType() {
