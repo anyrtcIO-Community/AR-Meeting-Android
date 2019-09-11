@@ -90,19 +90,11 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         option.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile480x640);
         //设置会议类型
         option.setMeetType(ARMeetType.Normal);
-        option.setVideoFps(ARVideoCommon.ARVideoFrameRate.ARVideoFrameRateFps60);
         option.setMediaType(ARVideoCommon.ARMediaType.Video);
         mMeetKit = new ARMeetKit(arMeetEvent);
         mMeetKit.setFrontCameraMirrorEnable(true);
         mMeetKit.setNetworkStatus(true);
         VideoRenderer localVideoRender = mVideoView.openLocalVideoRender();
-        //  设置码率
-//        mMeetKit.setLocalVideoBitrate();
-        //设置视频编码
-//        mMeetKit.setVideoCodec();
-
-
-
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
         mMeetKit.joinRTCByToken("", meetId, userId, getUserInfo());
         arAudioManager = AR_AudioManager.create(this, new Runnable() {
@@ -113,15 +105,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         });
         arAudioManager.init();
 
-        //录制音视频
-        String path = Environment.getExternalStorageDirectory().getPath() + "/Android/meet/";
-        File file = new File(path);
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        path = path + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + ".mp4";
-        int result = mMeetKit.startRecorder(true, path);
-        Log.e("Record","[AR_Log] result: " + result);
 
     }
 
@@ -177,8 +160,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 rl_log_layout.setVisibility(View.GONE);
                 break;
             case R.id.ib_leave:
-                //        //停止录制
-                 mMeetKit.stopRecorder();
                 if (mMeetKit != null) {
                     mMeetKit.clean();
                 }

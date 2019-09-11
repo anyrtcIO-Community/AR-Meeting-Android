@@ -1,19 +1,20 @@
 package org.ar.armeet;
 
 /**
- * Created by liuxiaozhong on 2019/1/11.
  */
 public class DeveloperInfo {
 
 
     /**
-     * 平台的appid
+     * appid
      */
-    public final static String APPID = "anyrtc8Mqhs4MG6qPb";
+    public final static String APPID = "anyrtcHFv4DfXEMmHE";
+
+
     /**
-     * 平台的apptoken
+     * apptoken
      */
-    public final static String APPTOKEN = "2cd338bf0d2a38093d9733525c98f7d4";
+    public final static String APPTOKEN = "b87d3d263cfd527cfa835587d874435d";
 
 
 }
