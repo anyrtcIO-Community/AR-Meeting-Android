@@ -60,3 +60,4 @@ workspace.xml
 *.jks
 meet_kit/src/main/JniLibs/JniLibs.zip
 *.zip
+doc/
