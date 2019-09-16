@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-version = "3.0.8"
+version = "3.0.9"
 apply plugin: 'maven'
 android {
     compileSdkVersion 26
@@ -10,8 +10,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 32
-        versionName "3.0.8"
+        versionCode 33
+        versionName "3.0.9"
     }
     buildTypes {
         release {
@@ -121,5 +121,6 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:26+'
 //    embedded project(path: ':ar_common')
-    embedded project(path: ':ar_common')
+//    embedded project(path: ':ar_common')
+    compile 'org.ar:ar_common:3.0.4'
 }
