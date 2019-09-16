@@ -80,14 +80,14 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         logAdapter.bindToRecyclerView(rvLog);
         meetId = getIntent().getStringExtra("meet_id");
         tvRoomId.setText("房间ID：" + meetId);
-        mVideoView = new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(), this, false);
+        mVideoView = new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(), this);
         mVideoView.setVideoViewLayout(false, Gravity.CENTER, LinearLayout.HORIZONTAL);
         //获取配置类
         ARMeetOption option = ARMeetEngine.Inst().getARMeetOption();
         //设置默认为前置摄像头
         option.setDefaultFrontCamera(true);
         //设置视频分辨率
-        option.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile480x640);
+        option.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile360x640);
         //设置会议类型
         option.setMeetType(ARMeetType.Normal);
         option.setMediaType(ARVideoCommon.ARMediaType.Video);
@@ -348,7 +348,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCRemoteNetworkStatus 远程用户网络状态  publishId:" + publishId + "\nnNetSpeed:" + nNetSpeed + "nPacketLost:" + nPacketLost + "ARNetQuality:" + netQuality.toString());
                     if (mVideoView != null) {
                         mVideoView.updateRemoteNetStatus(publishId, String.valueOf(nNetSpeed / 1024 * 8));
                     }
@@ -362,7 +361,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCLocalNetworkStatus 本地网络状态 nNetSpeed:" + nNetSpeed + "nPacketLost:" + nPacketLost + "ARNetQuality:" + netQuality.toString());
                     if (mVideoView != null) {
                         mVideoView.updateLocalNetStatus(String.valueOf(nNetSpeed / 1024 * 8));
                     }

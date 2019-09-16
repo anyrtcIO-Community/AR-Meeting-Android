@@ -3,7 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:id="@+id/rl_root"
     android:layout_height="match_parent">
-    <org.webrtc.SurfaceViewRenderer
+    <org.ar.armeet.TextureViewRenderer
         android:id="@+id/sv_video_render"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
