@@ -78,14 +78,13 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         logAdapter.bindToRecyclerView(rvLog);
         meetId = getIntent().getStringExtra("meet_id");
         tvRoomId.setText("房间ID："+meetId);
-        mVideoView=new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(),this);
+        mVideoView=new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(),this,false);
         mVideoView.setVideoViewLayout(false, Gravity.CENTER,LinearLayout.HORIZONTAL);
         //获取配置类
         ARMeetOption anyRTCMeetOption = ARMeetEngine.Inst().getARMeetOption();
         //设置默认为前置摄像头
         anyRTCMeetOption.setDefaultFrontCamera(true);
         anyRTCMeetOption.setMediaType(ARVideoCommon.ARMediaType.Video);
-        anyRTCMeetOption.setMeetType(ARMeetType.Host);
 
         anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile360x640);
         mMeetKit = new ARMeetKit(arMeetEvent);
@@ -173,7 +172,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    logAdapter.addData("回调：onRTCJoinMeetFailed 加入房间失败 ID："+anyrtcId);
+                    logAdapter.addData("回调：onRTCJoinMeetFailed 加入房间失败 ID："+anyrtcId+"  code:"+code);
                     if (code == 701) {
                         Toast.makeText(MeetingActivity.this,"会议人数已满",Toast.LENGTH_SHORT).show();
                         finishAnimActivity();
@@ -203,7 +202,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                     }
                     final VideoRenderer render = mVideoView.openRemoteVideoRender(publishId);
                     if (null != render) {
-                        mMeetKit.setRemoteVideoRender(publishId, localVideoRender.GetRenderPointer());
+                        mMeetKit.setRemoteVideoRender(publishId, render.GetRenderPointer());
                     }
                 }
             });
