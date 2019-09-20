@@ -46,6 +46,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
     private String userId=(int)((Math.random()*9+1)*100000)+"";
 //    private String userId="654321";
     String publishID="";
+    VideoRenderer localVideoRender;
     @Override
     public int getLayoutId() {
         return R.layout.activity_meeting;
@@ -77,45 +78,24 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         logAdapter.bindToRecyclerView(rvLog);
         meetId = getIntent().getStringExtra("meet_id");
         tvRoomId.setText("房间ID："+meetId);
-        mVideoView=new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(),this,false);
+        mVideoView=new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(),this);
         mVideoView.setVideoViewLayout(false, Gravity.CENTER,LinearLayout.HORIZONTAL);
         //获取配置类
         ARMeetOption anyRTCMeetOption = ARMeetEngine.Inst().getARMeetOption();
         //设置默认为前置摄像头
         anyRTCMeetOption.setDefaultFrontCamera(true);
         anyRTCMeetOption.setMediaType(ARVideoCommon.ARMediaType.Video);
+        anyRTCMeetOption.setMeetType(ARMeetType.Host);
 
-
-        anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile480x640);
+        anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile360x640);
         mMeetKit = new ARMeetKit(arMeetEvent);
 
         //设置视频编码器
         //设置视频码率
 
-        VideoRenderer localVideoRender = mVideoView.openLocalVideoRender();
+         localVideoRender = mVideoView.openLocalVideoRender();
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
         mMeetKit.joinRTCByToken("",meetId,userId,getUserInfo());
-        findViewById(R.id.btn_start).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String path = Environment.getExternalStorageDirectory().getPath() + "/Android/meet/";
-                File file = new File(path);
-                if (!file.exists()) {
-                    file.mkdirs();
-                }
-                path = path + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + ".mp3";
-                int result = mMeetKit.startRecorder(false, path);
-                Toast.makeText(MeetingActivity.this,result+"",Toast.LENGTH_SHORT).show();
-                Log.e("Record","[AR_Log] result: " + result);
-            }
-        });
-
-        findViewById(R.id.btn_stop).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMeetKit.stopRecorder();
-            }
-        });
     }
 
     public String getUserInfo() {
@@ -223,7 +203,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                     }
                     final VideoRenderer render = mVideoView.openRemoteVideoRender(publishId);
                     if (null != render) {
-                        mMeetKit.setRemoteVideoRender(publishId, render.GetRenderPointer());
+                        mMeetKit.setRemoteVideoRender(publishId, localVideoRender.GetRenderPointer());
                     }
                 }
             });

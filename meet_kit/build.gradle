@@ -63,7 +63,7 @@ uploadArchives{
         repository(url:uri('D:\\liuxiaozhong\\LocalMaven'))
         pom.groupId = 'org.ar'
         pom.artifactId = 'meet_kit'
-        pom.version = '4.0.2'
+        pom.version = '4.0.4'
     }
 }
 //解决 gradlew 构建错误: 编码 GBK的不可映射字符
@@ -121,6 +121,6 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:26+'
 //    embedded project(path: ':ar_common')
-//    embedded project(path: ':ar_common')
+//    compile project(path: ':ar_common')
     compile 'org.ar:ar_common:3.0.4'
 }
