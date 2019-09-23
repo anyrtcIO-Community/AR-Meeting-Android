@@ -78,7 +78,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         logAdapter.bindToRecyclerView(rvLog);
         meetId = getIntent().getStringExtra("meet_id");
         tvRoomId.setText("房间ID："+meetId);
-        mVideoView=new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(),this,false);
+        mVideoView=new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(),this);
         mVideoView.setVideoViewLayout(false, Gravity.CENTER,LinearLayout.HORIZONTAL);
         //获取配置类
         ARMeetOption anyRTCMeetOption = ARMeetEngine.Inst().getARMeetOption();
