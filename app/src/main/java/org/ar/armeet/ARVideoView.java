@@ -22,6 +22,7 @@ import org.webrtc.EglBase;
 import org.webrtc.EglRenderer;
 import org.webrtc.PercentFrameLayout;
 import org.webrtc.RendererCommon;
+import org.webrtc.TextureViewRenderer;
 import org.webrtc.VideoRenderer;
 
 import java.io.File;
