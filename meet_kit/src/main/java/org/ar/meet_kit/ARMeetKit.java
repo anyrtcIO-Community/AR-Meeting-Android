@@ -576,6 +576,8 @@ public class ARMeetKit {
      *
      * @param capturerObserver
      */
+
+
     public void setARCameraCaptureObserver(final VideoCapturer.ARCameraCapturerObserver capturerObserver) {
         mExecutor.execute(new Runnable() {
             @Override
@@ -623,6 +625,8 @@ public class ARMeetKit {
         });
     }
 
+
+
     /**
      * 打开第三方流媒体
      *
@@ -646,7 +650,7 @@ public class ARMeetKit {
      *
      * @param thirdMediaType 0：关闭所有辐流；1：关闭屏幕共享；2：关闭第三方流媒体
      */
-    public void closeThirdNetStream(final ARVideoCommon.ARMediaType thirdMediaType) {
+    public void closeThirdNetStream(final ARVideoCommon.ThirdMediaType thirdMediaType) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -1092,6 +1096,8 @@ public class ARMeetKit {
             }
         });
     }
+
+
 
     /**
      * 设置Zoom模式

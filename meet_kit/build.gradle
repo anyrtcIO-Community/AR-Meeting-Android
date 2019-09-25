@@ -122,5 +122,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26+'
 //    embedded project(path: ':ar_common')
 //    compile project(path: ':ar_common')
-    compile 'org.ar:ar_common:3.0.4'
+    compile 'org.ar:ar_common:3.0.5'
 }

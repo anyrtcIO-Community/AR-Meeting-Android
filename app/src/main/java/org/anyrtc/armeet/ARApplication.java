@@ -14,6 +14,6 @@ public class ARApplication extends Application {
     public void onCreate() {
         super.onCreate();
         ARMeetEngine.Inst().initEngine(getApplicationContext(), DeveloperInfo.APPID,DeveloperInfo.APPTOKEN);
-
+        ARMeetEngine.Inst().configServerForPriCloud("20l21773e3.imwork.net",9080);
     }
 }
