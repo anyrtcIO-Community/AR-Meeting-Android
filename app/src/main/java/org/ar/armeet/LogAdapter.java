@@ -6,9 +6,6 @@ import android.widget.TextView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 
-/**
- * Created by liuxiaozhong on 2019/3/12.
- */
 public class LogAdapter extends BaseQuickAdapter<String,BaseViewHolder> {
     public LogAdapter() {
         super(android.R.layout.simple_list_item_1);

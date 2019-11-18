@@ -7,9 +7,6 @@ import android.view.WindowManager;
 
 import com.gyf.barlibrary.ImmersionBar;
 
-/**
- * Created by Skyline on 2016/5/24.
- */
 public abstract class BaseActivity extends AppCompatActivity {
     protected ImmersionBar mImmersionBar;
 

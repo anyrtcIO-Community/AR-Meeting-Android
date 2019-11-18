@@ -42,9 +42,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static android.view.View.VISIBLE;
 
-/**
- * Created by liuxiaozhong on 2019/1/11.
- */
 public class ARVideoView implements View.OnTouchListener {
 
     public RelativeLayout rlVideoGroup;//所有视频的容器布局

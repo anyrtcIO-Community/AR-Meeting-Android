@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import org.ar.common.enums.ARNetQuality;
 import org.ar.common.enums.ARVideoCommon;
+import org.ar.common.utils.ARAudioManager;
 import org.ar.common.utils.AR_AudioManager;
 import org.ar.meet_kit.ARMeetEngine;
 import org.ar.meet_kit.ARMeetEvent;
@@ -31,6 +32,7 @@ import org.webrtc.VideoRenderer;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 
 public class MeetingActivity extends BaseActivity implements View.OnClickListener {
 
@@ -46,8 +48,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
     private ARMeetKit mMeetKit;
     private String meetId = "";
     private String userId = (int) ((Math.random() * 9 + 1) * 100000) + "";
-    //    private String userId="654321";
-    AR_AudioManager arAudioManager;
+    ARAudioManager arAudioManager;
 
     @Override
     public int getLayoutId() {
@@ -97,13 +98,13 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         VideoRenderer localVideoRender = mVideoView.openLocalVideoRender();
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
         mMeetKit.joinRTCByToken("", meetId, userId, getUserInfo());
-        arAudioManager = AR_AudioManager.create(this, new Runnable() {
+        arAudioManager = ARAudioManager.create(this);
+        arAudioManager.start(new ARAudioManager.AudioManagerEvents() {
             @Override
-            public void run() {
+            public void onAudioDeviceChanged(ARAudioManager.AudioDevice audioDevice, Set<ARAudioManager.AudioDevice> set) {
 
             }
         });
-        arAudioManager.init();
 
 
     }
@@ -497,7 +498,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             mVideoView.removeAllRemoteRender();
         }
         if (arAudioManager != null) {
-            arAudioManager.close();
+            arAudioManager.stop();
             arAudioManager = null;
         }
     }
