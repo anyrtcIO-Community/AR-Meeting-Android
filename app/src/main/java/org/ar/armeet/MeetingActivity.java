@@ -94,7 +94,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         option.setMediaType(ARVideoCommon.ARMediaType.Video);
         mMeetKit = new ARMeetKit(arMeetEvent);
         mMeetKit.setFrontCameraMirrorEnable(true);
-        mMeetKit.setNetworkStatus(true);
         VideoRenderer localVideoRender = mVideoView.openLocalVideoRender();
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
         mMeetKit.joinRTCByToken("", meetId, userId, getUserInfo());
@@ -349,9 +348,9 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (mVideoView != null) {
-                        mVideoView.updateRemoteNetStatus(publishId, String.valueOf(nNetSpeed / 1024 * 8));
-                    }
+//                    if (mVideoView != null) {
+//                        mVideoView.updateRemoteNetStatus(publishId, String.valueOf(nNetSpeed / 1024 * 8));
+//                    }
 
                 }
             });
@@ -362,9 +361,9 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             MeetingActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (mVideoView != null) {
-                        mVideoView.updateLocalNetStatus(String.valueOf(nNetSpeed / 1024 * 8));
-                    }
+//                    if (mVideoView != null) {
+//                        mVideoView.updateLocalNetStatus(String.valueOf(nNetSpeed / 1024 * 8));
+//                    }
                 }
             });
         }
