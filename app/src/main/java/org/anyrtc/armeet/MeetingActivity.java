@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import org.ar.common.enums.ARNetQuality;
 import org.ar.common.enums.ARVideoCommon;
+import org.ar.common.utils.SharePrefUtil;
 import org.ar.meet_kit.ARMeetEngine;
 import org.ar.meet_kit.ARMeetEvent;
 import org.ar.meet_kit.ARMeetKit;
@@ -76,6 +78,26 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         logAdapter = new LogAdapter();
         rvLog.setLayoutManager(new LinearLayoutManager(this));
         logAdapter.bindToRecyclerView(rvLog);
+
+
+        boolean isDevMode = SharePrefUtil.getBoolean("isDevMode");
+        if (isDevMode) {
+            String appid = SharePrefUtil.getString("appid");
+            String apptoken = SharePrefUtil.getString("apptoken");
+            String ip = SharePrefUtil.getString("ip");
+
+            if (!TextUtils.isEmpty(appid)) {
+                logAdapter.addData(appid);
+            }
+            if (!TextUtils.isEmpty(apptoken)) {
+                logAdapter.addData(apptoken);
+            }
+            if (!TextUtils.isEmpty(ip)) {
+                logAdapter.addData(ip);
+            }else {
+                logAdapter.addData("公网正式环境");
+            }
+        }
         meetId = getIntent().getStringExtra("meet_id");
         tvRoomId.setText("房间ID："+meetId);
         mVideoView=new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(),this);
@@ -85,10 +107,10 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         //设置默认为前置摄像头
         anyRTCMeetOption.setDefaultFrontCamera(true);
         anyRTCMeetOption.setMediaType(ARVideoCommon.ARMediaType.Video);
-
-        anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile360x640);
+        anyRTCMeetOption.setScreenOriention(ARVideoCommon.ARVideoOrientation.Landscape);
+        anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile720x1280);
         mMeetKit = new ARMeetKit(arMeetEvent);
-
+        mMeetKit.setFrontCameraMirrorEnable(true);
         //设置视频编码器
         //设置视频码率
 
@@ -142,7 +164,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 logAdapter.addData("方法："+(ibVideo.isSelected() ? "本地视频传输关闭" : "本地视频传输开启"));
                 break;
             case R.id.btn_log:
-                    rl_log_layout.setVisibility(View.VISIBLE);
+                rl_log_layout.setVisibility(View.VISIBLE);
                 break;
             case R.id.ibtn_close_log:
                 rl_log_layout.setVisibility(View.GONE);

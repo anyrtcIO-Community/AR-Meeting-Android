@@ -1,14 +1,18 @@
 package org.anyrtc.armeet;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tencent.bugly.crashreport.CrashReport;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
+
+import org.ar.meet_kit.ARMeetEngine;
 
 import java.util.List;
 
@@ -16,6 +20,10 @@ public class MainActivity extends BaseActivity {
 
     EditText et_meet_id;
     TextView tvVersion;
+
+    private int mSecretNumber = 0;
+    private static final long MIN_CLICK_INTERVAL = 600;
+    private long mLastClickTime;
     @Override
     public int getLayoutId() {
         return R.layout.activity_main;
@@ -51,6 +59,29 @@ public class MainActivity extends BaseActivity {
                     }).start();
                 }
 
+            }
+        });
+
+        findViewById(R.id.tv_title).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                long currentClickTime = SystemClock.uptimeMillis();
+                long elapsedTime = currentClickTime - mLastClickTime;
+                mLastClickTime = currentClickTime;
+
+                if (elapsedTime < MIN_CLICK_INTERVAL) {
+                    ++mSecretNumber;
+                    if (9 == mSecretNumber) {
+                        try {
+                            Toast.makeText(MainActivity.this,"进入开发者模式",Toast.LENGTH_SHORT).show();
+                            startAnimActivity(InputDevInfoActivity.class);
+                        } catch (Exception e) {
+                        }
+                        mSecretNumber=0;
+                    }
+                } else {
+                    mSecretNumber = 0;
+                }
             }
         });
 

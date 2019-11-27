@@ -299,14 +299,12 @@ public class ARVideoView implements View.OnTouchListener {
         LocalVideoRender.surfaceViewRenderer.addFrameListener(new EglRenderer.FrameListener() {
             @Override
             public void onFrame(Bitmap frame) {
-                Log.d("surfaceView", frame.toString());
                 LocalVideoRender.surfaceViewRenderer.post(new Runnable() {
                     @Override
                     public void run() {
                         LocalVideoRender.flLoading.setVisibility(View.GONE);
                     }
                 });
-
             }
         }, 1f);
         allVideoList.put("localRender", LocalVideoRender);
