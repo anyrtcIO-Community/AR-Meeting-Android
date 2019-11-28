@@ -208,6 +208,27 @@ public class ARVideoCommon {
         }
     }
 
+    public enum ThirdMediaType {
+        /**
+         * 关闭所有辐流
+         */
+        all(0),
+        /**
+         * 屏幕共享
+         */
+        screen(1),
+        /**
+         * 关闭rtsp流媒体
+         */
+        rtsp(2);
+
+        public final int type;
+
+        private ThirdMediaType(int type) {
+            this.type = type;
+        }
+    }
+
     /**
      * Camera外部数据类型
      */

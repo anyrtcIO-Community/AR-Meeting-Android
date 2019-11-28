@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'maven'
-version = "3.0.3"
+version = "3.0.5"
 
 android {
     compileSdkVersion 25
@@ -11,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 14
-        versionName "3.0.3"
+        versionCode 16
+        versionName "3.0.5"
     }
     buildTypes {
         release {
@@ -66,7 +66,7 @@ install {
             project {
                 packaging 'aar'
                 // Add your description here
-                name 'anyrtc公共sdk'     //项目描述
+                name 'common sdk'     //项目描述
                 url siteUrl
                 // Set your license
                 licenses {
