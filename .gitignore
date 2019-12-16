@@ -61,3 +61,4 @@ workspace.xml
 meet_kit/src/main/JniLibs/JniLibs.zip
 *.zip
 doc/
+*.aar
