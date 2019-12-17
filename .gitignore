@@ -13,3 +13,4 @@ app/app-release.apk
 *.zip
 .idea/
 *.apk
+*.aar

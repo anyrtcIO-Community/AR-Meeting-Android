@@ -499,4 +499,13 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
             }
         },100);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mVideoView!=null){
+            mVideoView.removeLocalVideoRender();
+            mVideoView.removeAllRemoteRender();
+        }
+    }
 }

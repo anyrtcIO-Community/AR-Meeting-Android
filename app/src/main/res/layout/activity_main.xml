@@ -19,7 +19,7 @@
             android:drawablePadding="10dp"
             android:layout_centerInParent="true"
             android:drawableTop="@drawable/img_logo"
-            android:text="anyRTC多人音视频DEMO"
+            android:text="AR多人音视频DEMO"
             android:textColor="#CCCCCC"
             android:textSize="12sp" />
 
