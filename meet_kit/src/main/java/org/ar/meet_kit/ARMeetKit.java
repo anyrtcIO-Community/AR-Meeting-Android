@@ -951,7 +951,7 @@ public class ARMeetKit {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                int ret = nativeStartRecorder(isNeedVideo, onlyLocalVideo, filePath);
+                int ret = nativeStartRecorder(isNeedVideo, filePath);
                 LooperExecutor.exchange(result, ret);
             }
         });
@@ -980,7 +980,7 @@ public class ARMeetKit {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                int ret = nativeStartRecorder(isNeedVideo, true, filePath);
+                int ret = nativeStartRecorder(isNeedVideo, filePath);
                 LooperExecutor.exchange(result, ret);
             }
         });
@@ -1536,7 +1536,7 @@ public class ARMeetKit {
 
     private native void nativeLeave();
 
-    private native int nativeStartRecorder(boolean isNeedVideo,boolean onlyLocal, String filePath);
+    private native int nativeStartRecorder(boolean isNeedVideo, String filePath);
 
     private native boolean nativeStopRecorder();
 
