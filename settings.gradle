@@ -1,1 +1,1 @@
-include ':app', 'meet_kit','ar_common'
+include 'meet_kit', ':ar_common', ':app',':meet_rtsp_kit'

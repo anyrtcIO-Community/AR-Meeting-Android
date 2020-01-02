@@ -11,9 +11,11 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/ar_common" />
             <option value="$PROJECT_DIR$/meet_kit" />
+            <option value="$PROJECT_DIR$/meet_rtsp_kit" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
+        <option name="testRunner" value="PLATFORM" />
       </GradleProjectSettings>
     </option>
   </component>
