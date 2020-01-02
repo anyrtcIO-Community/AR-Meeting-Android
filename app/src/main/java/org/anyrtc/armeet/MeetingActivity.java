@@ -111,6 +111,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile720x1280);
         mMeetKit = new ARMeetKit(arMeetEvent);
         mMeetKit.setFrontCameraMirrorEnable(true);
+        mMeetKit.openThirdNetStream("rtsp://192.168.1.134:8554/657375");
         //设置视频编码器
         //设置视频码率
 

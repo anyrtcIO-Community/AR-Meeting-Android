@@ -24,6 +24,8 @@ public class ARMeetEngine {
      */
     static {
         System.loadLibrary("meet-jni");
+        System.loadLibrary("gnustl_shared");
+        System.loadLibrary("xrtsp");
     }
 
     private final LooperExecutor executor;
