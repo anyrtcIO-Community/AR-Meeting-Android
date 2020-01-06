@@ -671,7 +671,7 @@ public class ARMeetKit {
             @Override
             public void run() {
                 int ret = 0;
-//                nativeSetAuidoModel(false, true);
+//                nativeSetAuidoModel(true, true);
                 ret = nativeOpenThirdNetStream(url);
                 LooperExecutor.exchange(result, ret);
             }
