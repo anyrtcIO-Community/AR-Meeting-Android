@@ -34,6 +34,6 @@ dependencies {
     compile 'com.gyf.barlibrary:barlibrary:2.3.0'
     compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.22'
     compile 'com.android.support.constraint:constraint-layout:1.1.3'
-    compile project(':meet_rtsp_kit')
+    compile project(':meet_kit')
     compile(name: 'bugly_crashreport_upgrade-1.4.2', ext: 'aar')
 }
