@@ -1,6 +1,7 @@
 package org.anyrtc.armeet;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -106,18 +107,32 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         ARMeetOption anyRTCMeetOption = ARMeetEngine.Inst().getARMeetOption();
         //设置默认为前置摄像头
         anyRTCMeetOption.setDefaultFrontCamera(true);
-        anyRTCMeetOption.setMediaType(ARVideoCommon.ARMediaType.Audio);
-        anyRTCMeetOption.setScreenOriention(ARVideoCommon.ARVideoOrientation.Landscape);
-        anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile720x1280);
+        anyRTCMeetOption.setMediaType(ARVideoCommon.ARMediaType.Video);
+        anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile1080x1920);
         mMeetKit = new ARMeetKit(arMeetEvent);
         mMeetKit.setFrontCameraMirrorEnable(true);
         //设置视频编码器
         //设置视频码率
-
+        mMeetKit.setLocalVideoBitrate(1024*4);
          localVideoRender = mVideoView.openLocalVideoRender();
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
         mMeetKit.joinRTCByToken("",meetId,userId,getUserInfo());
+
     }
+
+    private CountDownTimer cdTimer = new CountDownTimer(70000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            tvRoomId.setText((millisUntilFinished / 1000) + " s");
+        }
+
+        @Override
+        public void onFinish() {
+            tvRoomId.setText("end");
+            mMeetKit.stopRecorder();
+            Toast.makeText(MeetingActivity.this, "结束录制", Toast.LENGTH_SHORT).show();
+        }
+    };
 
     public String getUserInfo() {
         JSONObject jsonObject = new JSONObject();
@@ -185,6 +200,9 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 @Override
                 public void run() {
                     logAdapter.addData("回调：onRTCJoinMeetOK 加入房间成功 ID："+anyrtcId);
+                    cdTimer.start();
+                    Toast.makeText(MeetingActivity.this, "开始录制", Toast.LENGTH_SHORT).show();
+                    mMeetKit.startRecorder(true,Environment.getExternalStorageDirectory().getAbsolutePath()+"/test.mp4");
                 }
             });
         }
