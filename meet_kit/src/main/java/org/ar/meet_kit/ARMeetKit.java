@@ -1538,7 +1538,7 @@ public class ARMeetKit {
 
     private native int nativeStartRecorder(boolean isNeedVideo, String filePath);
 
-    private native boolean nativeStopRecorder();
+    private native void nativeStopRecorder();
 
     private static native void nativeSetAuidoModel(boolean enabled, boolean audioDetect);
 
