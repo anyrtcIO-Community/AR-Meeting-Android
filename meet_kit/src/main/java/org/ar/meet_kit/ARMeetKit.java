@@ -424,10 +424,10 @@ public class ARMeetKit {
                                 Log.e("sys", "Failed to open camera");
                                 LooperExecutor.exchange(result, 2);
                             }
-                            nativeSetVideoCapturer(mVideoCapturer, lRender);
+                            nativeSetVideoCapturer(ARMeetEngine.Inst().Egl().getEglBaseContext(), mVideoCapturer, lRender);
                             LooperExecutor.exchange(result, 1);
                         } else {
-                            nativeSetVideoCapturer(mVideoCapturer, lRender);
+                            nativeSetVideoCapturer(ARMeetEngine.Inst().Egl().getEglBaseContext(), mVideoCapturer, lRender);
                             LooperExecutor.exchange(result, 1);
                         }
                     } else {
@@ -460,7 +460,7 @@ public class ARMeetKit {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        nativeSetVideoCapturer(null, 0);
+                        nativeSetVideoCapturer(ARMeetEngine.Inst().Egl().getEglBaseContext(), null, 0);
                         mVideoCapturer = null;
                     }
 
@@ -483,7 +483,7 @@ public class ARMeetKit {
                                 Log.e("sys", "Failed to open camera");
                                 LooperExecutor.exchange(result, 2);
                             }
-                            nativeSetVideoCapturer(mVideoCapturer, lRender);
+                            nativeSetVideoCapturer(ARMeetEngine.Inst().Egl().getEglBaseContext(), mVideoCapturer, lRender);
                             LooperExecutor.exchange(result, 1);
                         } else {
                             LooperExecutor.exchange(result, 3);
@@ -549,7 +549,7 @@ public class ARMeetKit {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        nativeSetVideoCapturer(null, 0);
+                        nativeSetVideoCapturer(ARMeetEngine.Inst().Egl().getEglBaseContext(),null, 0);
                         mVideoCapturer = null;
                     }
                 }
@@ -576,8 +576,6 @@ public class ARMeetKit {
      *
      * @param capturerObserver
      */
-
-
     public void setARCameraCaptureObserver(final VideoCapturer.ARCameraCapturerObserver capturerObserver) {
         mExecutor.execute(new Runnable() {
             @Override
@@ -625,8 +623,6 @@ public class ARMeetKit {
         });
     }
 
-
-
     /**
      * 打开第三方流媒体
      *
@@ -664,7 +660,7 @@ public class ARMeetKit {
      *
      * @param render
      */
-    public void setThirdNetStreamRender(final HwRender render) {
+    public void setThirdNetStreamRender(final Object render) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -767,6 +763,7 @@ public class ARMeetKit {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
+                Log.e("ARMeetKit", "[AR_Log] leave");
                 nativeLeave();
             }
         });
@@ -777,13 +774,14 @@ public class ARMeetKit {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
+                Log.e("ARMeetKit", "[AR_Log] clean");
                 if (mVideoCapturer != null) {
                     try {
                         mVideoCapturer.stopCapture();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    nativeSetVideoCapturer(null, 0);
+                    nativeSetVideoCapturer(ARMeetEngine.Inst().Egl().getEglBaseContext(),null, 0);
                     mVideoCapturer = null;
                 }
                 nativeLeave();
@@ -1096,8 +1094,6 @@ public class ARMeetKit {
             }
         });
     }
-
-
 
     /**
      * 设置Zoom模式
@@ -1494,7 +1490,7 @@ public class ARMeetKit {
 
     private native void nativeSetScreenToPortrait();
 
-    private native void nativeSetVideoCapturer(VideoCapturer capturer, long nativeRenderer);
+    private native void nativeSetVideoCapturer(EglBase.Context context, VideoCapturer capturer, long nativeRenderer);
 
     private native void nativeSetLocalVideoRender(long nativeRenderer);
 

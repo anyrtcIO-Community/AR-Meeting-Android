@@ -93,16 +93,14 @@ public class ARMeetEngine {
      * @param strToken
      */
     public void initEngine(final Context ctx, final String strAppId, final String strToken) {
+        appId = strAppId;
+        appToken = strToken;
+        context = ctx;
         executor.execute(new Runnable() {
             @Override
             public void run() {
-//                developerId = strDeveloperId;
-                appId = strAppId;
-//                appKey = strAESKey;
-                appToken = strToken;
                 ContextUtils.initialize(ctx);
                 nativeInitCtx(ctx, eglBase.getEglBaseContext());
-                context = ctx;
                 nativeInitEngineWithAppInfo(strAppId, strToken, getPackageName());
             }
         });
