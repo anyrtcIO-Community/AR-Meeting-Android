@@ -35,4 +35,6 @@ public class ARApplication extends Application {
 
         Bugly.init(getApplicationContext(), "d2e9e6fd44", false);
     }
+
+
 }
