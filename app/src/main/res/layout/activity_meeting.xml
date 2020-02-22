@@ -61,6 +61,18 @@
                 android:layout_marginTop="12sp"
                 android:background="@null"
                 android:src="@drawable/img_rizhi" />
+
+
+            <ImageButton
+                android:id="@+id/btn_small"
+                android:layout_width="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_height="35dp"
+                android:layout_below="@+id/btn_log"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="12sp"
+                android:background="@null"
+                android:src="@drawable/small" />
         </RelativeLayout>
     </LinearLayout>
 

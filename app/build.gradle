@@ -5,7 +5,7 @@ android {
     buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "org.ar.armeet"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 28
         versionCode 1
         versionName "3.0.0"
@@ -22,15 +22,21 @@ android {
             dirs 'libs'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:28.0.0'
-    compile 'com.android.support:recyclerview-v7:28.0.0'
-    compile 'com.yanzhenjie.permission:support:2.0.1'
-    compile 'com.gyf.barlibrary:barlibrary:2.3.0'
-    compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.22'
-    compile 'com.android.support.constraint:constraint-layout:1.1.3'
-    compile 'org.ar:meet_kit:3.1.3'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation 'com.yanzhenjie.permission:support:2.0.1'
+    implementation 'com.gyf.barlibrary:barlibrary:2.3.0'
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.22'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'org.ar:meet_kit:3.1.3'
+    //懸浮窗
+    implementation 'com.github.princekin-f:EasyFloat:1.2.8'
 }

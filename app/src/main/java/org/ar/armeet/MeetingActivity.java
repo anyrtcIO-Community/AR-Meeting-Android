@@ -1,12 +1,15 @@
 package org.ar.armeet;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -14,6 +17,13 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.lzf.easyfloat.EasyFloat;
+import com.lzf.easyfloat.enums.ShowPattern;
+import com.lzf.easyfloat.interfaces.OnFloatCallbacks;
+import com.lzf.easyfloat.interfaces.OnInvokeView;
+import com.lzf.easyfloat.interfaces.OnPermissionResult;
+import com.lzf.easyfloat.permission.PermissionUtils;
 
 import org.ar.common.enums.ARNetQuality;
 import org.ar.common.enums.ARVideoCommon;
@@ -25,6 +35,8 @@ import org.ar.meet_kit.ARMeetKit;
 import org.ar.meet_kit.ARMeetOption;
 import org.ar.meet_kit.ARMeetType;
 import org.ar.meet_kit.ARMeetZoomMode;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.webrtc.VideoRenderer;
@@ -38,7 +50,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
 
     View space;
     RelativeLayout rlVideo, rl_log_layout;
-    ImageButton ibCamera, ibLog, ibtn_close_log;
+    ImageButton ibCamera, ibLog, ibtn_close_log, ibtn_small;
     Button ibVideo, ibAudio, ibHangUp;
     RecyclerView rvLog;
     TextView tvRoomId;
@@ -49,6 +61,11 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
     private String meetId = "";
     private String userId = (int) ((Math.random() * 9 + 1) * 100000) + "";
     ARAudioManager arAudioManager;
+    private String remoteVideoId = "";
+    private boolean isSmall = false;//是否打開懸浮
+    private boolean isHangUp = false;//是否自己掛斷
+    private boolean isSwitch = false;//是否切換大小像
+    private ARVideoView mfloatVideoView;;
 
     @Override
     public int getLayoutId() {
@@ -68,11 +85,13 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         ll_bottom_layout = findViewById(R.id.ll_bottom_layout);
         ibVideo = findViewById(R.id.ib_video);
         ibAudio = findViewById(R.id.ib_audio);
+        ibtn_small = findViewById(R.id.btn_small);
         ibLog = findViewById(R.id.btn_log);
         ibHangUp = findViewById(R.id.ib_leave);
         ibCamera.setOnClickListener(this);
         ibVideo.setOnClickListener(this);
         ibAudio.setOnClickListener(this);
+        ibtn_small.setOnClickListener(this);
         ibLog.setOnClickListener(this);
         ibHangUp.setOnClickListener(this);
         ibtn_close_log.setOnClickListener(this);
@@ -82,13 +101,15 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         meetId = getIntent().getStringExtra("meet_id");
         tvRoomId.setText("房间ID：" + meetId);
         mVideoView = new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(), this);
-        mVideoView.setVideoViewLayout(false, Gravity.CENTER, LinearLayout.HORIZONTAL);
+        mVideoView.setVideoViewLayout(true, Gravity.CENTER, LinearLayout.HORIZONTAL);
         //获取配置类
         ARMeetOption option = ARMeetEngine.Inst().getARMeetOption();
         //设置默认为前置摄像头
         option.setDefaultFrontCamera(true);
         //设置视频分辨率
-        option.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile360x640);
+
+        option.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile720x1280);
+        option.setScreenOriention(ARVideoCommon.ARVideoOrientation.Landscape);
         //设置会议类型
         option.setMeetType(ARMeetType.Normal);
         option.setMediaType(ARVideoCommon.ARMediaType.Video);
@@ -160,17 +181,130 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 rl_log_layout.setVisibility(View.GONE);
                 break;
             case R.id.ib_leave:
+                isHangUp=true;
+                EasyFloat.dismissAppFloat();
                 if (mMeetKit != null) {
                     mMeetKit.clean();
                 }
                 finishAnimActivity();
                 break;
+            case R.id.btn_small:
+                if (TextUtils.isEmpty(remoteVideoId)) {
+                    Toast.makeText(MeetingActivity.this, "只有1個人", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!PermissionUtils.checkPermission(MeetingActivity.this)) {
+                    PermissionUtils.requestPermission(MeetingActivity.this, new OnPermissionResult() {
+                        @Override
+                        public void permissionResult(boolean b) {
+                            if (!b) {
+                                Toast.makeText(MeetingActivity.this, "请打开悬浮窗权限", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    return;
+                }
+                moveTaskToBack(true);
+                isSmall = true;
+//                if (mVideoView!=null){
+//                    mVideoView.removeLocalVideoRender();
+//                    mVideoView.removeAllRemoteRender();
+//                }
+//                shouFloatWindow();
+                Intent intent = new Intent(MeetingActivity.this, MainActivity.class);
+                startActivity(intent);
+                break;
         }
+    }
+
+    private void shouFloatWindow() {
+
+        EasyFloat.with(this)
+                .setShowPattern(ShowPattern.ALL_TIME)
+                .setDragEnable(true)
+                .setGravity(Gravity.RIGHT, -12)
+                .setLayout(R.layout.float_window, new OnInvokeView() {
+                    @Override
+                    public void invoke(View view) {
+
+                        final RelativeLayout rl_float_video = view.findViewById(R.id.rl_float_video);
+                        mfloatVideoView = new ARVideoView(rl_float_video, ARMeetEngine.Inst().Egl(), MeetingActivity.this);
+                        mfloatVideoView.setVideoViewLayout(false, Gravity.CENTER, LinearLayout.HORIZONTAL);
+//                        mMeetKit.restartLocalVideoCapturer(mfloatVideoView.openLocalVideoRenderNotResume().GetRenderPointer());
+                        mMeetKit.setRemoteVideoRender(remoteVideoId, mfloatVideoView.openRemoteVideoRender(remoteVideoId).GetRenderPointer());
+                        rl_float_video.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (isSmall) {
+//                                mfloatVideoView.removeLocalVideoRender();
+//                                mfloatVideoView.removeRemoteRender(remoteVideoId);
+//                                EasyFloat.dismissAppFloat();
+                                    Intent intent = new Intent(MeetingActivity.this, MeetingActivity.class);
+                                    startActivity(intent);
+                                    isSmall=false;
+                                }else {
+                                    if (isSwitch){
+                                        mMeetKit.setRemoteVideoRender(remoteVideoId, mfloatVideoView.openRemoteVideoRender(remoteVideoId).GetRenderPointer());
+                                        mMeetKit.setRemoteVideoRender("RTCMainParticipanter", mVideoView.openLocalVideoRender().GetRenderPointer());
+                                    }else {
+                                        mMeetKit.setRemoteVideoRender("RTCMainParticipanter", mfloatVideoView.openRemoteVideoRender(remoteVideoId).GetRenderPointer());
+                                        mMeetKit.setRemoteVideoRender(remoteVideoId, mVideoView.openLocalVideoRender().GetRenderPointer());
+                                    }
+                                    isSwitch=!isSwitch;
+
+                                }
+
+                            }
+                        });
+                    }
+                }).registerCallbacks(new OnFloatCallbacks() {
+            @Override
+            public void createdResult(boolean b, @Nullable String s, @Nullable View view) {
+
+            }
+
+            @Override
+            public void show(@NotNull View view) {
+
+            }
+
+            @Override
+            public void hide(@NotNull View view) {
+
+            }
+
+            @Override
+            public void dismiss() {
+                Log.d("floatWindow","dissmiss");
+                if (mfloatVideoView!=null){
+                    mfloatVideoView.removeRemoteRender(remoteVideoId);
+                    remoteVideoId="";
+                    mfloatVideoView=null;
+                }
+            }
+
+            @Override
+            public void touchEvent(@NotNull View view, @NotNull MotionEvent motionEvent) {
+
+            }
+
+            @Override
+            public void drag(@NotNull View view, @NotNull MotionEvent motionEvent) {
+
+            }
+
+            @Override
+            public void dragEnd(@NotNull View view) {
+
+            }
+        }).show();
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode==KeyEvent.KEYCODE_BACK){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            isHangUp=true;
+            EasyFloat.dismissAppFloat();
             if (mMeetKit != null) {
                 mMeetKit.clean();
             }
@@ -220,7 +354,8 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 @Override
                 public void run() {
                     logAdapter.addData("回调：onRTCOpenRemoteVideoRender 远程视频流接入即将渲染显示 publishId：" + publishId + "\n peerId:" + peerId + "user:" + userId);
-
+                    remoteVideoId = publishId;
+//                    shouFloatWindow();
                     final VideoRenderer render = mVideoView.openRemoteVideoRender(publishId);
                     if (null != render) {
                         mMeetKit.setRemoteVideoRender(publishId, render.GetRenderPointer());
@@ -236,9 +371,15 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 public void run() {
                     logAdapter.addData("回调：onRTCCloseRemoteVideoRender 远程视频流关闭 publishId：" + publishId + "\n peerId:" + peerId + "user:" + userId);
 
-                    if (mMeetKit != null && mVideoView != null) {
-                        mVideoView.removeRemoteRender(publishId);
-                        mMeetKit.setRemoteVideoRender(publishId, 0);
+                    if (!isHangUp) {
+                        if (EasyFloat.appFloatIsShow() && isSmall) {//已經最小化了
+                            EasyFloat.dismissAppFloat();
+                            Intent intent = new Intent(MeetingActivity.this, MeetingActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        } else {
+                            EasyFloat.dismissAppFloat();
+                        }
                     }
 
                 }
@@ -492,7 +633,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mVideoView!=null){
+        if (mVideoView != null) {
             mVideoView.removeLocalVideoRender();
             mVideoView.removeAllRemoteRender();
         }
@@ -511,5 +652,16 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 mVideoView.setBottomHeight(ll_bottom_layout.getMeasuredHeight());
             }
         }, 100);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+    }
+
+    @Override
+    public boolean moveTaskToBack(boolean nonRoot) {
+        return super.moveTaskToBack(nonRoot);
     }
 }

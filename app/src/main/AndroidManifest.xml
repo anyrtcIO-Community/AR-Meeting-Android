@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"></uses-permission>
 
     <application
         android:name="org.ar.armeet.ARApplication"
@@ -26,7 +27,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="org.ar.armeet.MeetingActivity"></activity>
+        <activity android:name="org.ar.armeet.MeetingActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            ></activity>
     </application>
 
 </manifest>
