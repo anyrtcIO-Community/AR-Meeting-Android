@@ -95,7 +95,7 @@ public class ARVideoView implements View.OnTouchListener {
 
 
     public void setBottomHeight(int bottomHeight) {
-        this.bottomHeight = (int) (((float) bottomHeight / mScreenHeight) * 100f);
+        this.bottomHeight = mScreenHeight*(100-BIG_SUB_HEIGHT)/2f/100>bottomHeight? (int) (((100 - BIG_SUB_HEIGHT) / 2f)+4) :(int) (((float) bottomHeight / mScreenHeight) * 100f+4);
     }
 
     @Override
@@ -172,7 +172,7 @@ public class ARVideoView implements View.OnTouchListener {
          * @return true false
          */
         public Boolean isFullScreen() {
-            return w == 100 || h == 100;
+            return w == BIG_SUB_WIDTH || h == BIG_SUB_HEIGHT;
         }
 
         /**
@@ -257,7 +257,7 @@ public class ARVideoView implements View.OnTouchListener {
                 BIG_SUB_HEIGHT = 100;
             } else {
                 SUB_WIDTH =(int) (((mScreenWidth / videoNum) ) / (mScreenWidth / 100f));
-                SUB_HEIGHT = 21;
+                SUB_HEIGHT =  (int) (((mScreenWidth / videoNum) )*1.7777777f)/(mScreenHeight/100);
                 BIG_SUB_WIDTH = 100;
                 BIG_SUB_HEIGHT = (int) ((mScreenWidth * 1.7777777f) / (mScreenHeight / 100f));
             }
