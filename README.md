@@ -6,7 +6,7 @@ AR-Meeting-Android视频会议，基于ARMeetEngine SDK，支持视频、语音�
 
 ### app体验
 
-##### [点击下载](https://fir.im/a31v)
+##### [点击下载](http://download.anyrtc.io/a31v)
 
 ##### [WEB在线体验](https://demos.anyrtc.io/ar-meet/)
 
@@ -17,7 +17,7 @@ AR-Meeting-Android视频会议，基于ARMeetEngine SDK，支持视频、语音�
 
 ```
 dependencies {
-compile 'org.ar:meet_kit:3.1.2'
+compile 'org.ar:meet_kit:3.1.4'
 }
 ```
 
@@ -26,7 +26,7 @@ compile 'org.ar:meet_kit:3.1.2'
 <dependency>
   <groupId>org.ar</groupId>
   <artifactId>meet_kit</artifactId>
-  <version>3.1.2</version>
+  <version>3.1.4</version>
   <type>pom</type>
 </dependency>
 ```
