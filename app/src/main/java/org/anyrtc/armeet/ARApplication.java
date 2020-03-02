@@ -22,7 +22,6 @@ public class ARApplication extends Application {
         boolean isDevMode = SharePrefUtil.getBoolean("isDevMode");
         if (!isDevMode) {
             ARMeetEngine.Inst().initEngine(getApplicationContext(), DeveloperInfo.APPID,DeveloperInfo.APPTOKEN);
-            ARMeetEngine.Inst().configServerForPriCloud("192.168.1.21",9080);
         }else {
             String appid = SharePrefUtil.getString("appid");
             String apptoken = SharePrefUtil.getString("apptoken");

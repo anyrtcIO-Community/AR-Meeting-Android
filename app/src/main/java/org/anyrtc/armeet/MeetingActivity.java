@@ -108,12 +108,9 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         //设置默认为前置摄像头
         anyRTCMeetOption.setDefaultFrontCamera(true);
         anyRTCMeetOption.setMediaType(ARVideoCommon.ARMediaType.Video);
-        anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile720x960);
+        anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile480x640);
         mMeetKit = new ARMeetKit(arMeetEvent);
         mMeetKit.setFrontCameraMirrorEnable(true);
-        //设置视频编码器
-        //设置视频码率
-        mMeetKit.setLocalVideoBitrate(1024*4);
          localVideoRender = mVideoView.openLocalVideoRender();
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
         mMeetKit.joinRTCByToken("",meetId,userId,getUserInfo());
@@ -173,11 +170,9 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 rl_log_layout.setVisibility(View.GONE);
                 break;
             case R.id.ib_leave:
-                mMeetKit.stopRecorder();
                 if (mMeetKit != null) {
                     mMeetKit.clean();
                 }
-
                 finishAnimActivity();
                 break;
         }
@@ -190,8 +185,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 @Override
                 public void run() {
                     logAdapter.addData("回调：onRTCJoinMeetOK 加入房间成功 ID："+anyrtcId);
-                    Toast.makeText(MeetingActivity.this, "开始录制", Toast.LENGTH_SHORT).show();
-                    mMeetKit.startRecorder(true,Environment.getExternalStorageDirectory().getAbsolutePath()+"/test.mp4");
                 }
             });
         }
