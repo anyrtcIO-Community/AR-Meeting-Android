@@ -112,6 +112,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         mMeetKit = new ARMeetKit(arMeetEvent);
         mMeetKit.setFrontCameraMirrorEnable(true);
          localVideoRender = mVideoView.openLocalVideoRender();
+        mMeetKit.setLocalVideoBitrate(50);
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
         mMeetKit.joinRTCByToken("",meetId,userId,getUserInfo());
 
@@ -163,13 +164,14 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 logAdapter.addData("方法："+(ibVideo.isSelected() ? "本地视频传输关闭" : "本地视频传输开启"));
                 break;
             case R.id.btn_log:
-                rl_log_layout.setVisibility(View.VISIBLE);
-
+//                rl_log_layout.setVisibility(View.VISIBLE);
+                mVideoView.saveLocalPicture();
                 break;
             case R.id.ibtn_close_log:
                 rl_log_layout.setVisibility(View.GONE);
                 break;
             case R.id.ib_leave:
+                mMeetKit.stopRecorder();
                 if (mMeetKit != null) {
                     mMeetKit.clean();
                 }
@@ -185,6 +187,8 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 @Override
                 public void run() {
                     logAdapter.addData("回调：onRTCJoinMeetOK 加入房间成功 ID："+anyrtcId);
+                    Toast.makeText(MeetingActivity.this,"开始录制",Toast.LENGTH_SHORT).show();
+                    mMeetKit.startConfigRecorder(true,Environment.getExternalStorageDirectory()+File.separator+"test.mp4",720,1280,30,1024);
                 }
             });
         }
