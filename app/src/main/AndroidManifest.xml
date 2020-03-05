@@ -21,7 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".InputDevInfoActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="fullSensor"></activity>
         <activity android:name=".MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>

@@ -961,13 +961,10 @@ public class ARMeetKit {
      * 开始自定义参数录像
      * @param isNeedVideo 是否需要录制视频（true：录制音视频， false：录制音频）
      * @param filePath 本地录像路径（音频文件格式为mp3, 视频文件格式为mp4）
-     * @param width 本地录像视频的宽
-     * @param height 本地录像视频的高
-     * @param fps 本地录像视频的帧率
      * @param bitrate 本地录像视频的码率（1M码率为1024）
      * @return 返回值：0：开始录制成功，-1：文件格式不匹配
      */
-    public int startConfigRecorder(final boolean isNeedVideo, final String filePath, final int width, final int height, final int fps, final int bitrate) {
+    public int startConfigRecorder(final boolean isNeedVideo, final String filePath, final int bitrate) {
         if(isNeedVideo) {
             //视频文件后缀名必须是mp4
             if(filePath.lastIndexOf("mp4") == -1) {
@@ -983,7 +980,7 @@ public class ARMeetKit {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                int ret = nativeStartConfigRecorder(isNeedVideo, filePath, width, height, fps, bitrate);
+                int ret = nativeStartConfigRecorder(isNeedVideo, filePath, bitrate);
                 LooperExecutor.exchange(result, ret);
             }
         });
@@ -1568,7 +1565,7 @@ public class ARMeetKit {
 
     private native int nativeStartRecorder(boolean isNeedVideo, String filePath);
 
-    private native int nativeStartConfigRecorder(boolean isNeedVideo, String filePath, int width, int height, int fps, int bitrate);
+    private native int nativeStartConfigRecorder(boolean isNeedVideo, String filePath, int bitrate);
 
     private native void nativeStopRecorder();
 

@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import org.ar.common.enums.ARNetQuality;
 import org.ar.common.enums.ARVideoCommon;
+import org.ar.common.utils.ARAudioManager;
 import org.ar.common.utils.SharePrefUtil;
 import org.ar.meet_kit.ARMeetEngine;
 import org.ar.meet_kit.ARMeetEvent;
@@ -32,6 +33,7 @@ import org.webrtc.VideoRenderer;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 
 public class MeetingActivity extends BaseActivity implements View.OnClickListener {
 
@@ -50,6 +52,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
 //    private String userId="654321";
     String publishID="";
     VideoRenderer localVideoRender;
+    ARAudioManager arAudioManager;
     @Override
     public int getLayoutId() {
         return R.layout.activity_meeting;
@@ -79,8 +82,13 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         logAdapter = new LogAdapter();
         rvLog.setLayoutManager(new LinearLayoutManager(this));
         logAdapter.bindToRecyclerView(rvLog);
+        arAudioManager=ARAudioManager.create(this);
+        arAudioManager.start(new ARAudioManager.AudioManagerEvents() {
+            @Override
+            public void onAudioDeviceChanged(ARAudioManager.AudioDevice selectedAudioDevice, Set<ARAudioManager.AudioDevice> availableAudioDevices) {
 
-
+            }
+        });
         boolean isDevMode = SharePrefUtil.getBoolean("isDevMode");
         if (isDevMode) {
             String appid = SharePrefUtil.getString("appid");
@@ -104,11 +112,13 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         mVideoView=new ARVideoView(rlVideo, ARMeetEngine.Inst().Egl(),this);
         mVideoView.setVideoViewLayout(false, Gravity.CENTER,LinearLayout.HORIZONTAL);
         //获取配置类
-        ARMeetOption anyRTCMeetOption = ARMeetEngine.Inst().getARMeetOption();
+        ARMeetOption option = ARMeetEngine.Inst().getARMeetOption();
         //设置默认为前置摄像头
-        anyRTCMeetOption.setDefaultFrontCamera(true);
-        anyRTCMeetOption.setMediaType(ARVideoCommon.ARMediaType.Video);
-        anyRTCMeetOption.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile480x640);
+        option.setDefaultFrontCamera(true);
+        option.setMediaType(ARVideoCommon.ARMediaType.Video);
+//        option.setMeetType(ARMeetType.Host);//主持人模式
+//        option.setHost(false);//是否是主持人
+        option.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile480x640);
         mMeetKit = new ARMeetKit(arMeetEvent);
         mMeetKit.setFrontCameraMirrorEnable(true);
          localVideoRender = mVideoView.openLocalVideoRender();
@@ -164,14 +174,12 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 logAdapter.addData("方法："+(ibVideo.isSelected() ? "本地视频传输关闭" : "本地视频传输开启"));
                 break;
             case R.id.btn_log:
-//                rl_log_layout.setVisibility(View.VISIBLE);
-                mVideoView.saveLocalPicture();
+                rl_log_layout.setVisibility(View.VISIBLE);
                 break;
             case R.id.ibtn_close_log:
                 rl_log_layout.setVisibility(View.GONE);
                 break;
             case R.id.ib_leave:
-                mMeetKit.stopRecorder();
                 if (mMeetKit != null) {
                     mMeetKit.clean();
                 }
@@ -188,7 +196,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 public void run() {
                     logAdapter.addData("回调：onRTCJoinMeetOK 加入房间成功 ID："+anyrtcId);
                     Toast.makeText(MeetingActivity.this,"开始录制",Toast.LENGTH_SHORT).show();
-                    mMeetKit.startConfigRecorder(true,Environment.getExternalStorageDirectory()+File.separator+"test.mp4",720,1280,30,1024);
                 }
             });
         }

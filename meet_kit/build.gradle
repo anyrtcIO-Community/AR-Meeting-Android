@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-version = "3.1.4"
+version = "3.1.5"
 apply plugin: 'maven'
 android {
     compileSdkVersion 26
@@ -10,8 +10,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 38
-        versionName "3.1.4"
+        versionCode 39
+        versionName "3.1.5"
     }
     buildTypes {
         release {
@@ -63,7 +63,7 @@ uploadArchives{
         repository(url:uri('D:\\liuxiaozhong\\LocalMaven'))
         pom.groupId = 'org.ar'
         pom.artifactId = 'meet_kit'
-        pom.version = '3.1.4'
+        pom.version = '3.1.5'
     }
 }
 //解决 gradlew 构建错误: 编码 GBK的不可映射字符
