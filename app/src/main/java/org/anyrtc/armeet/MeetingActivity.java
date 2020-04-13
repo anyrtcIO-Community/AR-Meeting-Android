@@ -89,6 +89,7 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
 
             }
         });
+        arAudioManager.setDefaultAudioDevice(ARAudioManager.AudioDevice.SPEAKER_PHONE);
         boolean isDevMode = SharePrefUtil.getBoolean("isDevMode");
         if (isDevMode) {
             String appid = SharePrefUtil.getString("appid");
@@ -116,14 +117,13 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         //设置默认为前置摄像头
         option.setDefaultFrontCamera(true);
         option.setMediaType(ARVideoCommon.ARMediaType.Video);
-//        option.setMeetType(ARMeetType.Host);//主持人模式
-//        option.setHost(false);//是否是主持人
         option.setVideoProfile(ARVideoCommon.ARVideoProfile.ARVideoProfile480x640);
         mMeetKit = new ARMeetKit(arMeetEvent);
         mMeetKit.setFrontCameraMirrorEnable(true);
          localVideoRender = mVideoView.openLocalVideoRender();
-        mMeetKit.setLocalVideoBitrate(50);
         mMeetKit.setLocalVideoCapturer(localVideoRender.GetRenderPointer());
+        mMeetKit.resamplerLocalAudio(16000,1);
+        mMeetKit.setAudioNeedPcm(true);
         mMeetKit.joinRTCByToken("",meetId,userId,getUserInfo());
 
     }
@@ -195,7 +195,6 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
                 @Override
                 public void run() {
                     logAdapter.addData("回调：onRTCJoinMeetOK 加入房间成功 ID："+anyrtcId);
-                    Toast.makeText(MeetingActivity.this,"开始录制",Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -307,13 +306,23 @@ public class MeetingActivity extends BaseActivity implements View.OnClickListene
         }
 
         @Override
-        public void onRTCLocalAudioPcmData(String peerId, byte[] data, int nLen, int nSampleHz, int nChannel) {
-
+        public void onRTCLocalAudioPcmData(final String peerId, byte[] data, int nLen, final int nSampleHz, int nChannel) {
+            MeetingActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+//                    logAdapter.addData("回调：onRTCLocalAudioPcmData peerId  peerId:"+peerId+"nSampleHz:"+nSampleHz);
+                }
+            });
         }
 
         @Override
-        public void onRTCRemoteAudioPcmData(String peerId, byte[] data, int nLen, int nSampleHz, int nChannel) {
-
+        public void onRTCRemoteAudioPcmData(final String peerId, byte[] data, int nLen, final int nSampleHz, int nChannel) {
+            MeetingActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    logAdapter.addData("回调：onRTCRemoteAudioPcmData peerId  peerId:"+peerId+"nSampleHz:"+nSampleHz);
+                }
+            });
         }
 
         @Override

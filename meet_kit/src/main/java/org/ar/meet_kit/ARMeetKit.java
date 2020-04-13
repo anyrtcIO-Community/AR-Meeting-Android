@@ -150,6 +150,20 @@ public class ARMeetKit {
     }
 
     /**
+     * 设置信令使用udp模式
+     * @param enable true: udp 模式，false：tcp模式
+     */
+    public void setUseUdp(final boolean enable) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeSetUseUdp(enable);
+            }
+        });
+    }
+
+
+    /**
      * 是否打开音频实时检测
      *
      * @param open
@@ -1485,6 +1499,8 @@ public class ARMeetKit {
     private native long nativeCreate(Object obj);
 
     private native void nativeSetVideoCodec(String strCodec);
+
+    private native void nativeSetUseUdp(boolean enable);
 
     /**
      * 设置会议模式
