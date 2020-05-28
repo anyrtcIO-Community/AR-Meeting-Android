@@ -63,7 +63,7 @@ uploadArchives{
         repository(url:uri('D:\\liuxiaozhong\\LocalMaven'))
         pom.groupId = 'org.ar'
         pom.artifactId = 'meet_kit'
-        pom.version = '3.1.5'
+        pom.version = '3.1.7'
     }
 }
 //解决 gradlew 构建错误: 编码 GBK的不可映射字符
@@ -120,7 +120,7 @@ apply from: 'fat-aar.gradle'
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:26+'
-//    compile project(path: ':ar_common')
+    embedded project(path: ':ar_common')
 //    embedded project(path: ':ar_common')
-    compile 'org.ar:ar_common:3.0.5'
+//    compile 'org.ar:ar_common:3.0.5'
 }

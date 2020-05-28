@@ -880,6 +880,27 @@ public class ARMeetKit {
         return nativeSetYUV420PData(p_yuv, width, height, rotation.rotation);
     }
 
+    /**
+     * @param bEnable
+     */
+    public void setExH264Capturer(final boolean bEnable) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeSetExH264Capturer(bEnable);
+            }
+        });
+    }
+    /**
+     *
+     * @param data 264数据
+     * @param length 264数据大小
+     * @return 0：成功，-1：dataType不正确，
+     */
+    public int setVideoH264Data(final byte[] data, final int length) {
+        nativeSetVideoH264Data(data, length);
+        return 0;
+    }
 
     private String getExtensionName(String filename) {
         if ((filename != null) && (filename.length() > 0)) {
@@ -1130,14 +1151,36 @@ public class ARMeetKit {
      * 设置音频采样率
      * @param sample_hz 音频采样率 （16000 || 32000 || 48000 ||  8000 || 44100）
      * @param channel 音频声道，（1或者2）
+     * @return 0:成功，-1：失败
      */
-    public void resamplerLocalAudio(final int sample_hz, final int channel) {
+    public int resamplerLocalAudio(final int sample_hz, final int channel) {
+        final Exchanger<Integer> result = new Exchanger<Integer>();
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                nativeResamplerLocalAudio(sample_hz, channel);
+                int ret = nativeResamplerLocalAudio(sample_hz, channel);
+                LooperExecutor.exchange(result, ret);
             }
         });
+        return LooperExecutor.exchange(result, -1);
+    }
+
+    /**
+     * 设置远端音频采样率
+     * @param sample_hz 音频采样率 （16000 || 32000 || 48000 ||  8000 || 44100）
+     * @param channel 音频声道，（1或者2）
+     * @return 0:成功，-1：失败
+     */
+    public int resamplerRemoteAudio(final int sample_hz, final int channel) {
+        final Exchanger<Integer> result = new Exchanger<Integer>();
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                int ret = nativeResamplerRemoteAudio(sample_hz, channel);
+                LooperExecutor.exchange(result, ret);
+            }
+        });
+        return LooperExecutor.exchange(result, -1);
     }
 
     /**
@@ -1553,6 +1596,10 @@ public class ARMeetKit {
 
     private native int nativeSetVideoYUV420PData(byte[] y, int stride_y, byte[]  u, int stride_u, byte[]  v, int stride_v, int width, int height, int rotation);
 
+    private native void nativeSetExH264Capturer(boolean bEnable);
+
+    private native void nativeSetVideoH264Data(byte[] data, int length);
+
     private native void nativeSetVideoCapturer(byte[] p_rgb, int width, int height);
 
     private native void nativeSetVideoSize(int nWidth, int nHeight, int nBitrate);
@@ -1601,7 +1648,9 @@ public class ARMeetKit {
 
     private native void nativeSetTalkOnly(boolean enable, String strLivePeerId);
 
-    private native void nativeResamplerLocalAudio(int sample_hz, int channel);
+    private native int nativeResamplerLocalAudio(int sample_hz, int channel);
+
+    private native int nativeResamplerRemoteAudio(int sample_hz, int channel);
 
     private native void nativeSetZoomMode(int nMode/*0:normal 1:single 2:driver*/);
 
